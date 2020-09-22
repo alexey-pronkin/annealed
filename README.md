@@ -7,6 +7,13 @@ Implementation and reproducing paper "Improving Explorability in Variational Inf
 - Aleksei Pronkin
 - Mikhail Kurenkov
 - Timur Chikichev
+## Proposal
+
+see: [Proposal](Baesian_methods_project_proposal_HVI_AVO.pdf) in this repo.
+
+## Reproducing
+
+TODO
 
 ## Goal
 
@@ -33,5 +40,5 @@ During this project we are going to implement methods and repeat experiments of 
 - Analyze a behavior of AVO objective on toy examples.
 - Conduct experiments with VAE and AVO on the MNIST and CelebA datasets.
 
-We planned to use and rewrite some code from https://github.com/joelouismarino/iterative_inference/, https://github.com/jmtomczak/vae_householder_flow, https://github.com/AntixK/PyTorch-VAE, https://github.com/haofuml/cyclical_annealing and https://github.com/ajayjain/lmconv. (We assume, that first two repositories were used in the original paper closed source code) 
+We planned to use and rewrite some code from https://github.com/joelouismarino/iterative_inference/, https://github.com/jmtomczak/vae_householder_flow, https://github.com/AntixK/PyTorch-VAE, https://github.com/haofuml/cyclical_annealing and https://github.com/ajayjain/lmconv. (We assume, that first two repositories were used in the original paper closed source code)
 
