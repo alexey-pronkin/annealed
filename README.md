@@ -21,14 +21,15 @@ During this project we are going to implement methods and repeat experiments of 
 
 ## Models
 
-- VAE https://arxiv.org/abs/1312.6114 with parameters from https://github.com/jmtomczak/vae_householder_flow
-- HVI based on https://arxiv.org/abs/1511.02386.
-- IWAE based on https://arxiv.org/abs/1509.00519.
+- Variational Auto Encoder (VAE) https://arxiv.org/abs/1312.6114 with parameters from https://github.com/jmtomczak/vae_householder_flow
+- Hierarchical Variational Model (HVM) based on https://arxiv.org/abs/1511.02386.
+- Importance Weighted Auto-Encoder (IWAE) based on https://arxiv.org/abs/1509.00519.
 
 ## Pipline
 
-- Implement AVO method https://arxiv.org/abs/1809.01818.
 - Implement models.
+- Implement AVO method https://arxiv.org/abs/1809.01818.
+- Implement Hierarchical Variational Inference (HVI) method https://arxiv.org/abs/1511.02386.
 - Analyze a behavior of AVO objective on toy examples.
 - Conduct experiments with VAE and AVO on the MNIST and CelebA datasets.
 
