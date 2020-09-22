@@ -32,7 +32,7 @@ During this project we are going to implement methods and repeat experiments of 
 - Hierarchical Variational Model (HVM) based on https://arxiv.org/abs/1511.02386.
 - Importance Weighted Auto-Encoder (IWAE) based on https://arxiv.org/abs/1509.00519.
 
-## Pipline
+## Pipeline
 
 - Implement models.
 - Implement AVO method https://arxiv.org/abs/1809.01818.
