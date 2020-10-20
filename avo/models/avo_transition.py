@@ -31,8 +31,8 @@ class AVOTransition(nn.Module):
         return -(1 - self._alpha) * self._initial_target.E(z) - self._alpha * self._final_target.E(z)
 
     def forward(self, previous_z, log_previous_probability):
-        # previous_z = previous_z.detach()
-        # log_previous_probability = log_previous_probability.detach()
+        previous_z = previous_z.detach()
+        log_previous_probability = log_previous_probability.detach()
         z = self.conditional_sample(previous_z)
 
         log_forward = self.log_forward_transition(z, previous_z)
