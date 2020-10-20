@@ -1,6 +1,7 @@
 import numpy as np
-from avo.normal_dist import batch_mvn
 import torch
+
+from avo.normal_dist import batch_mvn
 
 
 class Target:
@@ -32,7 +33,7 @@ class Target:
         E.sum().backward()
         return x.grad
 
-    def plot2d_pdf(self, ax, bounds=((-6, 6), (-6, 6)),  n_points=150):
+    def plot2d_pdf(self, ax, bounds=((-6, 6), (-6, 6)), n_points=150):
         bounds_x = bounds[0]
         bounds_y = bounds[1]
 
@@ -45,7 +46,8 @@ class Target:
             for i in range(len(x)):
                 for j in range(len(y)):
                     levels[i, j] = np.exp(
-                        -self.E(torch.tensor([x[i], y[j]], device=self.device, dtype=torch.float).unsqueeze(0)).data.cpu().numpy())
+                        -self.E(torch.tensor([x[i], y[j]], device=self.device, dtype=torch.float).unsqueeze(
+                            0)).data.cpu().numpy())
             self.cached_grid = levels
         levels /= np.sum(levels)
         ax.contour(x, y, levels.T)
@@ -60,7 +62,8 @@ class MixtureTarget(Target):
         self._alpha = alpha
 
     def E(self, x):
-        self._target1.E(x) * self._alpha + self._target2.E(x) * (1 - self._alpha)
+        return self._target1.E(x) * self._alpha + self._target2.E(x) * (1 - self._alpha)
+
 
 class SimpleNormal(Target):
     def __init__(self, device):
@@ -69,9 +72,10 @@ class SimpleNormal(Target):
     def E(self, x):
         return batch_mvn.E(x, 0, 1, True)
 
+
 class PickleRick(Target):
     def __init__(self, mu, L, diag=False):
-        Target.__init__(self,  L.device)
+        Target.__init__(self, L.device)
         self.name = 'Pickle Rick'
         self.diag = diag
         self.L = L
@@ -101,7 +105,7 @@ class ThreeMixture(Target):
 
 class Banana(Target):
     def __init__(self, mu, L, diag=False):
-        Target.__init__(self,  L.device)
+        Target.__init__(self, L.device)
         self.name = 'Banana'
         self.diag = diag
         self.L = L
