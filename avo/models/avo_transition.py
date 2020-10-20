@@ -40,6 +40,6 @@ class AVOTransition(nn.Module):
         log_annealed = self.log_annealed_distribution(z)
 
         # Because log_previous_probability is detached, it is not needed in loss function
-        loss = log_annealed + log_reverse - log_forward - log_previous_probability
+        loss = -log_annealed - log_reverse + log_forward + log_previous_probability
         log_probability = log_previous_probability + log_forward - log_reverse
         return loss, z, log_probability
