@@ -60,6 +60,7 @@ class MixtureTarget(Target):
         self._target1 = target1
         self._target2 = target2
         self._alpha = alpha
+        self.name = "mixture"
 
     def E(self, x):
         return self._target1.E(x) * self._alpha + self._target2.E(x) * (1 - self._alpha)
