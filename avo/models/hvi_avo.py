@@ -7,7 +7,7 @@ import torch.nn as nn
 
 
 class HVIAVO(pl.LightningModule):
-    def __init__(self, input_dimension, depth, target, lr=1e-3, batch_size=64, beta1=0.999, beta2=0.999,
+    def __init__(self, input_dimension, depth, target, lr=1e-3, batch_size=64, hidden_dimension=2, beta1=0.999, beta2=0.999,
                  optimizer="adam"):
         super().__init__()
         """
@@ -24,8 +24,8 @@ class HVIAVO(pl.LightningModule):
         self._input_dimension = input_dimension
         alphas = np.linspace(1. / depth, 1., depth)
         initial_target = SimpleNormal(target.device)
-        self._transitions = nn.ModuleList([AVOTransition(input_dimension, initial_target, target, alpha)
-                                           for alpha in alphas])
+        self._transitions = nn.ModuleList([AVOTransition(input_dimension, initial_target, target, alpha,
+                                                         hidden_dimension) for alpha in alphas])
 
     def forward(self, x):
         """

@@ -4,14 +4,14 @@ from .refinement_operator_module import RefinementOperatorModule
 
 
 class AVOTransition(nn.Module):
-    def __init__(self, input_dimension, initial_target, final_target, alpha):
+    def __init__(self, input_dimension, initial_target, final_target, alpha, hidden_dimension=2):
         super().__init__()
         self._initial_target = initial_target
         self._final_target = final_target
         self._alpha = alpha
 
-        self._forward_module = RefinementOperatorModule(input_dimension)
-        self._reverse_module = RefinementOperatorModule(input_dimension)
+        self._forward_module = RefinementOperatorModule(input_dimension, hidden_dimension)
+        self._reverse_module = RefinementOperatorModule(input_dimension, hidden_dimension)
 
     def log_forward_transition(self, z, previous_z):
         mu, sigma = self._forward_module(previous_z)
