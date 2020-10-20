@@ -52,6 +52,16 @@ class Target:
         ax.title.set_text(self.name)
 
 
+class MixtureTarget(Target):
+    def __init__(self, target1, target2, alpha):
+        super().__init__(target1.device)
+        self._target1 = target1
+        self._target2 = target2
+        self._alpha = alpha
+
+    def E(self, x):
+        self._target1.E(x) * self._alpha + self._target2.E(x) * (1 - self._alpha)
+
 class SimpleNormal(Target):
     def __init__(self, device):
         super().__init__(device)
