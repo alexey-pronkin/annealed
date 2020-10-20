@@ -7,7 +7,8 @@ import torch.nn as nn
 
 
 class HVIAVO(pl.LightningModule):
-    def __init__(self, input_dimension, depth, target, lr=1e-3, batch_size=64):
+    def __init__(self, input_dimension, depth, target, lr=1e-3, batch_size=64, beta1=0.999, beta2=0.999,
+                 optimizer="adam"):
         super().__init__()
         """
         in_dim - inout dimension
@@ -15,6 +16,9 @@ class HVIAVO(pl.LightningModule):
         depth - number of IA transformations
         """
         self._lr = lr
+        self._beta1 = beta1
+        self._beta2 = beta2
+        self._optimizer = optimizer
         self._target = target
         self._batch_size = batch_size
         self._input_dimension = input_dimension
@@ -55,6 +59,10 @@ class HVIAVO(pl.LightningModule):
         return loss
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=self._lr, betas=(0.999, 0.999))
-        scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=(1000, 4000), gamma=0.1)
-        return [optimizer], [scheduler]
+        if self._optimizer == "adam":
+            optimizer = torch.optim.Adam(self.parameters(), lr=self._lr, betas=(self._beta1, self._beta2))
+        elif self._optimizer == "sgd":
+            optimizer = torch.optim.SGD(self.parameters(), lr=self._lr)
+        else:
+            optimizer = None
+        return optimizer
