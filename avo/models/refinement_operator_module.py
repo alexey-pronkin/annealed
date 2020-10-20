@@ -14,6 +14,10 @@ class RefinementOperatorModule(nn.Module):
         self._g_activation = nn.Sigmoid()
         self._h_activation = nn.ReLU()
 
+    def init_weights(self):
+        for parameter in self.parameters():
+            nn.init.normal_(parameter)
+
     def forward(self, z):
         m = self._linear_m(z)
         g = self._g_activation(self._linear_g(z))
