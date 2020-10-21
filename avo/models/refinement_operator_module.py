@@ -1,5 +1,4 @@
 import torch.nn as nn
-import torch
 
 
 class RefinementOperatorModule(nn.Module):
@@ -11,7 +10,7 @@ class RefinementOperatorModule(nn.Module):
         self._linear_m = nn.Linear(hidden_dimension, input_dimension)
         self._linear_g = nn.Linear(hidden_dimension, input_dimension)
 
-        self._sigma_activation = torch.exp
+        self._sigma_activation = nn.Softplus()
         self._g_activation = nn.Sigmoid()
         self._h_activation = nn.ReLU()
 
