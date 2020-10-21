@@ -55,7 +55,9 @@ class HVI(pl.LightningModule):
         entropy = torch.logsumexp(full_log_probability, dim=1) - np.log(self._k)
 
         energy = self._target.E(x)
-        loss = torch.mean(energy - entropy)
+        loss = torch.mean(energy + entropy)
+        self.log("energy", torch.mean(energy))
+        self.log("entropy", torch.mean(entropy))
         self.log("loss", loss)
         return loss
 
