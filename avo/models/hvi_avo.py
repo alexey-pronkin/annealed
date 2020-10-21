@@ -16,6 +16,7 @@ class HVIAVO(HVI):
         h_dim - hidden dimension of the auto regressive NN
         depth - number of IA transformations
         """
+        self._depth = depth
         self._alphas = np.linspace(1. / depth, 1., depth)
         self._initial_target = SimpleNormal(target.device)
         self._transitions = nn.ModuleList([HVITransition(input_dimension, hidden_dimension) for _ in range(depth)])
@@ -36,5 +37,5 @@ class HVIAVO(HVI):
             annealed_loss = self.annealed_loss(alpha, x)
             loss += annealed_loss + log_probability + previous_log_probability
             previous_log_probability += log_probability
-        return x, loss
+        return x, loss / self._depth
 

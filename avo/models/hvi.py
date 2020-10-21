@@ -46,7 +46,7 @@ class HVI(pl.LightningModule):
         expanded_x = torch.repeat_interleave(x, self._k, dim=0)
 
         full_log_probability = 0
-        for transition in self._transitions:
+        for transition in reversed(self._transitions):
             expanded_x, log_probability = transition.forward_reverse(expanded_x)
             full_log_probability += log_probability
         full_log_probability += torch.sum(torch.distributions.normal.Normal(0, 1).log_prob(expanded_x), dim=1)
