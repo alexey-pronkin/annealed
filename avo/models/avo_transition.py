@@ -13,19 +13,15 @@ class AVOTransition(nn.Module):
         self._forward_module = RefinementOperatorModule(input_dimension, hidden_dimension)
         self._reverse_module = RefinementOperatorModule(input_dimension, hidden_dimension)
 
-    def log_forward_transition(self, z, previous_z):
+    def log_forward_transition(self, previous_z):
         mu, sigma = self._forward_module(previous_z)
-        return torch.sum(torch.distributions.normal.Normal(mu, sigma).log_prob(z), dim=1)
+        epsilon = torch.randn_like(previous_z)
+        z = mu + epsilon * sigma
+        return z, torch.sum(torch.distributions.normal.Normal(mu, sigma).log_prob(z), dim=1)
 
     def log_reverse_transition(self, z, previous_z):
         mu, sigma = self._reverse_module(z)
         return torch.sum(torch.distributions.normal.Normal(mu, sigma).log_prob(previous_z), dim=1)
-
-    def conditional_sample(self, previous_z):
-        mu, sigma = self._forward_module(previous_z)
-        epsilon = torch.randn_like(previous_z)
-        z = mu + epsilon * sigma
-        return z
 
     def log_annealed_distribution(self, z):
         return -(1 - self._alpha) * self._initial_target.E(z) - self._alpha * self._final_target.E(z)
@@ -33,9 +29,8 @@ class AVOTransition(nn.Module):
     def forward(self, previous_z, log_previous_probability):
         previous_z = previous_z.detach()
         log_previous_probability = log_previous_probability.detach()
-        z = self.conditional_sample(previous_z)
 
-        log_forward = self.log_forward_transition(z, previous_z)
+        z, log_forward = self.log_forward_transition(previous_z)
         log_reverse = self.log_reverse_transition(z, previous_z)
         log_annealed = self.log_annealed_distribution(z)
 

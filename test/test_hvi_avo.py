@@ -11,7 +11,7 @@ class TestHVIAVO(unittest.TestCase):
         l_target = torch.cholesky(torch.tensor([[1., 0.95], [0.95, 1.]]))
         target = PickleRick(torch.tensor([0., 0.]).unsqueeze(0).to(device), l_target.to(device))
 
-        self._model = HVIAVO(2, 10, target).cuda()
+        self._model = HVIAVO(2, 10, target, hidden_dimension=10).cuda()
 
     def test_training(self):
         trainer = pl.Trainer(max_epochs=1, gpus=1)
