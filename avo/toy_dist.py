@@ -125,8 +125,12 @@ class DFunction(Target):
         self.name = 'D'
 
     def E(self, x):
-        result = 0.1 * torch.exp(torch.distributions.normal.Normal(torch.tensor([-2., 0]), 0.2).log_prob(x))
-        result += 0.3 * torch.exp(torch.distributions.normal.Normal(torch.tensor([2., 0]), 0.2).log_prob(x))
-        result += 0.4 * torch.exp(torch.distributions.normal.Normal(torch.tensor([0, 2.]), 0.2).log_prob(x))
-        result += 0.2 * torch.exp(torch.distributions.normal.Normal(torch.tensor([0, -2.]), 0.2).log_prob(x))
-        return torch.log(result).to(self.device)
+        result = 0.1 * torch.exp(torch.sum(torch.distributions.normal.Normal(
+            torch.tensor([-2., 0], device=self.device), 0.2).log_prob(x), dim=1))
+        result += 0.3 * torch.exp(torch.sum(torch.distributions.normal.Normal(
+            torch.tensor([2., 0], device=self.device), 0.2).log_prob(x), dim=1))
+        result += 0.4 * torch.exp(torch.sum(torch.distributions.normal.Normal(
+            torch.tensor([0, 2.], device=self.device), 0.2).log_prob(x), dim=1))
+        result += 0.2 * torch.exp(torch.sum(torch.distributions.normal.Normal(
+            torch.tensor([0, -2.], device=self.device), 0.2).log_prob(x), dim=1))
+        return torch.log(result)
