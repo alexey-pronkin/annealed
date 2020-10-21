@@ -34,7 +34,7 @@ class HVIAVO(HVI):
             x = x.detach()
             x, log_probability = transition(x)
             annealed_loss = self.annealed_loss(alpha, x)
-            loss += annealed_loss + log_probability - previous_log_probability
+            loss += annealed_loss + log_probability + previous_log_probability
             previous_log_probability += log_probability
         return x, loss
 

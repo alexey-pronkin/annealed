@@ -26,7 +26,7 @@ class HVITransition(nn.Module):
     def forward(self, previous_z):
         z, log_forward = self.log_forward_transition(previous_z)
         previous_z, log_reverse = self.log_reverse_transition(z, previous_z)
-        return z, -log_forward + log_reverse
+        return z, log_forward - log_reverse
 
     def forward_reverse(self, z):
         previous_z, log_reverse = self.log_reverse_transition(z)
