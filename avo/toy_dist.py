@@ -125,12 +125,12 @@ class DFunction(Target):
         self.name = 'D'
 
     def E(self, x):
-        result = 0.1 * torch.exp(torch.sum(torch.distributions.normal.Normal(
-            torch.tensor([-2., 0], device=self.device), 0.2).log_prob(x), dim=1))
-        result += 0.3 * torch.exp(torch.sum(torch.distributions.normal.Normal(
-            torch.tensor([2., 0], device=self.device), 0.2).log_prob(x), dim=1))
-        result += 0.4 * torch.exp(torch.sum(torch.distributions.normal.Normal(
-            torch.tensor([0, 2.], device=self.device), 0.2).log_prob(x), dim=1))
-        result += 0.2 * torch.exp(torch.sum(torch.distributions.normal.Normal(
-            torch.tensor([0, -2.], device=self.device), 0.2).log_prob(x), dim=1))
-        return torch.log(result)
+        part1 = torch.sum(torch.distributions.normal.Normal(
+            torch.tensor([-2., 0], device=self.device), 0.2).log_prob(x), dim=1) + np.log(0.1)
+        part2 = torch.sum(torch.distributions.normal.Normal(
+            torch.tensor([2., 0], device=self.device), 0.2).log_prob(x), dim=1) + np.log(0.3)
+        part3 = torch.sum(torch.distributions.normal.Normal(
+            torch.tensor([0, 2.], device=self.device), 0.2).log_prob(x), dim=1) + np.log(0.4)
+        part4 = torch.sum(torch.distributions.normal.Normal(
+            torch.tensor([0, -2.], device=self.device), 0.2).log_prob(x), dim=1) + np.log(0.2)
+        return -torch.logsumexp(torch.stack([part1, part2, part3, part4], dim=0), dim=0)
