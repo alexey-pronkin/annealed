@@ -12,7 +12,7 @@ class RefinementOperatorModule(nn.Module):
 
         self._sigma_activation = nn.Softplus()
         self._g_activation = nn.Sigmoid()
-        self._h_activation = nn.ReLU()
+        self._h_activation = nn.LeakyReLU()
 
     def forward(self, z):
         h = self._h_activation(self._linear_h(z))
