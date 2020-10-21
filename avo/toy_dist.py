@@ -117,3 +117,16 @@ class Banana(Target):
         y = -x.clone()
         y[:, 1] = x[:, 1] + 0.5 * x[:, 0] ** 2 + 1
         return batch_mvn.E(y, self.mu, self.inv_L, self.diag)
+
+
+class DFunction(Target):
+    def __init__(self, device):
+        Target.__init__(self, device)
+        self.name = 'D'
+
+    def E(self, x):
+        result = 0.1 * torch.exp(torch.distributions.normal.Normal(torch.tensor([-2, 0]), 0.2).log_prob(x))
+        result += 0.3 * torch.exp(torch.distributions.normal.Normal(torch.tensor([2, 0]), 0.2).log_prob(x))
+        result += 0.4 * torch.exp(torch.distributions.normal.Normal(torch.tensor([0, 2]), 0.2).log_prob(x))
+        result += 0.2 * torch.exp(torch.distributions.normal.Normal(torch.tensor([0, -2]), 0.2).log_prob(x))
+        return torch.log(result)
