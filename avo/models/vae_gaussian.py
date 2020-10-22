@@ -1,6 +1,7 @@
 import torch.nn as nn
 from .vae import VAE
 import torch
+import numpy as np
 import torch.nn
 
 
@@ -28,7 +29,9 @@ class VaeGaussian(VAE):
         loss = kl_part + nll_part
         self.log("kl_part", kl_part)
         self.log("nll_part", nll_part)
-        self.log("loss", loss)
+        entropy = -torch.sum(0.5 * (np.log(2 * np.pi) + 1 + z_logvar))
+        self.log("elbo", loss)
+        self.log("entropy", entropy / scale)
         return reconstructed_x, loss
 
     def log_importance_weight(self, x):
