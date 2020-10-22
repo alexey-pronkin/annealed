@@ -4,14 +4,14 @@ import matplotlib.pyplot as plt
 import pytorch_lightning as pl
 
 from avo import MNISTDataModule
-from avo.models import VaeGaussian
+from avo.models import VAEHVIAVO
 from avo.utils.vae_result_evaluator import show_vae_reconstruction, show_vae_generation
 
 
-class TestVAEGaussian(unittest.TestCase):
+class TestVAEHVIAVO(unittest.TestCase):
     def setUp(self) -> None:
         self._device = "cuda:0"
-        self._model = VaeGaussian()
+        self._model = VAEHVIAVO()
         self._data_module = MNISTDataModule()
 
     # noinspection PyTypeChecker
