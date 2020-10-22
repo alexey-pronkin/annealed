@@ -1,0 +1,1 @@
+from .data_modules.mnist_data_module import MNISTDataModule

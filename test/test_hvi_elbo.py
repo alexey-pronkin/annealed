@@ -1,7 +1,7 @@
 import unittest
 from avo.models import HVIELBO
 import torch
-from avo.toy_dist import PickleRick
+from avo.toy_dist import PickleRick, DFunction
 import pytorch_lightning as pl
 
 
@@ -9,8 +9,8 @@ class TestHVIELBO(unittest.TestCase):
     def setUp(self) -> None:
         device = "cuda:0"
         l_target = torch.cholesky(torch.tensor([[1., 0.95], [0.95, 1.]]))
-        target = PickleRick(torch.tensor([0., 0.]).unsqueeze(0).to(device), l_target.to(device))
-
+        # target = PickleRick(torch.tensor([0., 0.]).unsqueeze(0).to(device), l_target.to(device))
+        target = DFunction(device)
         self._model = HVIELBO(2, 10, target, hidden_dimension=10).cuda()
 
     def test_training(self):
