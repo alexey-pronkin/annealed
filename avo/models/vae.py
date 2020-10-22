@@ -32,7 +32,7 @@ class VAE(pl.LightningModule):
 
     def test_step(self, batch, batch_index):
         loss = self.calculate_nll(batch[0])
-        self.log("loss", loss, on_step=True)
+        self.log("loss", loss)
         return loss
 
     def forward(self, x):
