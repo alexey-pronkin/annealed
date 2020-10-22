@@ -4,7 +4,7 @@ from .utils import get_activation
 
 
 class RefinementOperatorModule(nn.Module):
-    def __init__(self, input_dimension, hidden_dimension=2, activation='ReLU', num_stable=False):
+    def __init__(self, input_dimension, hidden_dimension=2, activation='ReLU', num_stable=True):
         super().__init__()
 
         self.num_stable = num_stable
