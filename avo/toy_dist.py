@@ -158,6 +158,7 @@ class ToyC(Target):
     def E(self, z):
         return (2. - (z[:, 0]**2 + z[:, 1]**2 * 0.5)**0.5)**2
 
+
 class DFunction(Target):
     def __init__(self, device='cpu'):
         Target.__init__(self, device)
@@ -174,23 +175,24 @@ class DFunction(Target):
             torch.tensor([0, -2.], device=self.device), 0.2).log_prob(x), dim=1) + np.log(0.2)
         return -torch.logsumexp(torch.stack([part1, part2, part3, part4], dim=0), dim=0)
 
+
 class ToyD(DFunction):
     def __init__(self, device='cpu'):
         Target.__init__(self, device)
         self.name = 'four-mode mixture of Gaussian as a true target energy'
+
 
 class ToyE(Target):
     def __init__(self, device='cpu'):
         Target.__init__(self, device)
         self.name = 'toy dist e'
 
-    def E(self, x):
-        z = x.squeeze()
-        w1 = torch.sin(math.pi * 0.5 * z[0])
-        w2 = 3 * torch.exp(-0.5 * (z[0] - 2)**2)
-        # return - 0.5 * ((z[1] - 2) / 0.4)**2 - 0.1 * z[0]**2
-        a = -0.5 * ((z[1] - w1) / 0.4)**2
-        return - a + 0.1 * z[0]**2
+    def E(self, z):
+        w1 = torch.sin(math.pi * 0.5 * z[:, 0])
+        w2 = 3 * torch.exp(-0.5 * (z[:, 0] - 2)**2)
+        # return - 0.5 * ((z[:, 1] - 2) / 0.4)**2 - 0.1 * z[:, 0]**2
+        a = -0.5 * ((z[:, 1] - w1) / 0.4)**2
+        return - a + 0.1 * z[:, 0]**2
 
 
 class ToyF(Target):
@@ -198,15 +200,119 @@ class ToyF(Target):
         Target.__init__(self, device)
         self.name = 'toy dist f'
 
-    def E(self, x):
-        z = x.squeeze()
-        w1 = torch.sin(torch.pi * 0.5 * z[0])
-        w2 = 3 * torch.exp(-0.5 * (z[0] - 2)**2)
+    def E(self, z):
+        w1 = torch.sin(math.pi * 0.5 * z[:, 0])
+        w2 = 3 * torch.exp(-0.5 * (z[:, 0] - 2)**2)
         vec = torch.stack((
-            -0.5 * ((z[1] - w1) / 0.35)**2,
-            -0.5 * ((z[1] - w1 + w2) / 0.35)**2,
+            -0.5 * ((z[:, 1] - w1) / 0.35)**2,
+            -0.5 * ((z[:, 1] - w1 + w2) / 0.35)**2,
         ))
-        return -torch.logsumexp(vec, dim=0) + 0.05 * z[0] ** 2
+        return -torch.logsumexp(vec, dim=0) + 0.05 * z[:, 0] ** 2
+
+
+
+
+class AnnealedA(ToyA):
+    def __init__(self, alpha=0, device='cpu'):
+        super().__init__()
+        self._initial_target = SimpleNormal(device)
+        self.alpha = alpha
+
+    def E(self, x):
+        ret = super().E(x)
+        ann = (1. - self.alpha) * self._initial_target.E(x) + self.alpha * ret
+        return ann
+
+
+class AnnealedB(ToyB):
+    def __init__(self, alpha=0, device='cpu'):
+        super().__init__()
+        self._initial_target = SimpleNormal(device)
+        self.alpha = alpha
+
+    def E(self, x):
+        ret = super().E(x)
+        ann = (1. - self.alpha) * self._initial_target.E(x) + self.alpha * ret
+        return ann
+
+
+class AnnealedC(ToyC):
+    def __init__(self, alpha=0, device='cpu'):
+        super().__init__()
+        self._initial_target = SimpleNormal(device)
+        self.alpha = alpha
+
+    def E(self, x):
+        ret = super().E(x)
+        ann = (1. - self.alpha) * self._initial_target.E(x) + self.alpha * ret
+        return ann
+
+
+class AnnealedD(ToyD):
+    def __init__(self, alpha=0, device='cpu'):
+        super().__init__()
+        self._initial_target = SimpleNormal(device)
+        self.alpha = alpha
+
+    def E(self, x):
+        ret = super().E(x)
+        ann = (1. - self.alpha) * self._initial_target.E(x) + self.alpha * ret
+        return ann
+
+
+class AnnealedE(ToyE):
+    def __init__(self, alpha=0, device='cpu'):
+        super().__init__()
+        self._initial_target = SimpleNormal(device)
+        self.alpha = alpha
+
+    def E0(self, z):
+        w1 = torch.sin(math.pi * 0.5 * z[:, 0])
+        w2 = 3 * torch.exp(-0.5 * (z[:, 0] - 2)**2)
+        # return - 0.5 * ((z[:, 1] - 2) / 0.4)**2 - 0.1 * z[:, 0]**2
+        a = -0.5 * ((z[:, 1] - w1) / 0.4)**2
+        return - a + 0.1 * z[:, 0]**2
+
+    def E(self, x):
+        # ret = super().E(x)
+        ret = self.E0(x)
+        ann = (1. - self.alpha) * self._initial_target.E(x) + self.alpha * ret
+        return ann
+
+
+class AnnealedF(ToyF):
+    def __init__(self, alpha=0, device='cpu'):
+        super().__init__()
+        self._initial_target = SimpleNormal(device)
+        self.alpha = alpha
+
+    def E0(self, z):
+        w1 = torch.sin(math.pi * 0.5 * z[:, 0])
+        w2 = 3 * torch.exp(-0.5 * (z[:, 0] - 2)**2)
+        vec = torch.stack((
+            -0.5 * ((z[:, 1] - w1) / 0.35)**2,
+            -0.5 * ((z[:, 1] - w1 + w2) / 0.35)**2,
+        ))
+        return -torch.logsumexp(vec, dim=0) + 0.05 * z[:, 0] ** 2
+
+    def E(self, x):
+        # ret = super().E(x)
+        ret = self.E0(x)
+        ann = (1. - self.alpha) * self._initial_target.E(x) + self.alpha * ret
+        return ann
 
 
 targets = [ToyA(), ToyB(), ToyC(), ToyD(), ToyD(), ToyE(), ToyF()]
+
+anntargets = [
+    AnnealedA,
+    AnnealedB,
+    AnnealedC, 
+    AnnealedD, 
+    AnnealedE, 
+    AnnealedF,
+]
+
+def genTransitionalTargets(target, depth=4):
+    alphas = np.linspace(0., 1., depth)
+    return [target(i) for i in alphas]

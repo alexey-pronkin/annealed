@@ -17,7 +17,7 @@ TODO
 
 ## Goal
 
-During this project we are going to implement methods and repeat experiments of this paper. 
+During this project we are going to implement methods and repeat experiments of this paper. https://arxiv.org/abs/1809.01818
 
 ## Experiments
 
