@@ -67,11 +67,12 @@ class MixtureTarget(Target):
 
 
 class SimpleNormal(Target):
-    def __init__(self, device):
+    def __init__(self, device, sigma=1.):
         super().__init__(device)
+        self._sigma = sigma
 
     def E(self, x):
-        return batch_mvn.E(x, 0, 1, True)
+        return batch_mvn.E(x, 0, self._sigma, True)
 
 
 class PickleRick(Target):
@@ -126,11 +127,11 @@ class DFunction(Target):
 
     def E(self, x):
         part1 = torch.sum(torch.distributions.normal.Normal(
-            torch.tensor([-2., 0], device=self.device), 0.2).log_prob(x), dim=1) + np.log(0.1)
+            torch.tensor([-2., 0], device=self.device), 0.2 ** 0.5).log_prob(x), dim=1) + np.log(0.1)
         part2 = torch.sum(torch.distributions.normal.Normal(
-            torch.tensor([2., 0], device=self.device), 0.2).log_prob(x), dim=1) + np.log(0.3)
+            torch.tensor([2., 0], device=self.device), 0.2 ** 0.5).log_prob(x), dim=1) + np.log(0.3)
         part3 = torch.sum(torch.distributions.normal.Normal(
-            torch.tensor([0, 2.], device=self.device), 0.2).log_prob(x), dim=1) + np.log(0.4)
+            torch.tensor([0, 2.], device=self.device), 0.2 ** 0.5).log_prob(x), dim=1) + np.log(0.4)
         part4 = torch.sum(torch.distributions.normal.Normal(
-            torch.tensor([0, -2.], device=self.device), 0.2).log_prob(x), dim=1) + np.log(0.2)
+            torch.tensor([0, -2.], device=self.device), 0.2 ** 0.5).log_prob(x), dim=1) + np.log(0.2)
         return -torch.logsumexp(torch.stack([part1, part2, part3, part4], dim=0), dim=0)
