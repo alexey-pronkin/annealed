@@ -21,7 +21,8 @@ class TestVAEGaussian(unittest.TestCase):
 
     def test_testing(self):
         trainer = pl.Trainer(max_epochs=1, gpus=1)
-        trainer.test(self._model, self._model.data_loader(100))
+        self._data_module.setup("test")
+        trainer.test(self._model, self._data_module.test_dataloader())
 
     def test_show_vae_reconstruction(self):
         show_vae_reconstruction(self._model, self._data_module, dpi=150, figsize=(2.5, 6))
