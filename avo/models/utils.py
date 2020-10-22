@@ -1,4 +1,4 @@
-from pytorch import nn
+from torch import nn
 def get_activation(activation):
     if activation == "ReLU":
         nonlinearity = nn.ReLU()
