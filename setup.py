@@ -16,6 +16,6 @@ setup(name='avo',
       author='Mikhail Kurenkov, Aleksei Pronkin, Timur Chikichev',
       author_email='Mikhail.Kurenkov@skoltech.ru',
       package_dir={},
-      packages=["avo", "avo.models", "avo.data_modules"],
+      packages=["avo", "avo.models", "avo.data_modules", "avo.utils"],
       install_requires=install_requires
       )

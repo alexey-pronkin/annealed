@@ -1,1 +1,2 @@
 from .data_modules.mnist_data_module import MNISTDataModule
+from .utils.vae_result_evaluator import VaeResultEvaluator

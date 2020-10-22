@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-class ResultEvaluator(object):
+class VaeResultEvaluator(object):
     @staticmethod
     def generation(model, image_h=5, image_w=5, device="cpu"):
         plt.figure(dpi=150)
