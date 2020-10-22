@@ -1,22 +1,32 @@
 import unittest
-from avo.models import VaeGaussian
-from avo import MNISTDataModule
-import torch
+
+import matplotlib.pyplot as plt
 import pytorch_lightning as pl
+
+from avo import MNISTDataModule
+from avo.models import VaeGaussian
+from avo.utils.vae_result_evaluator import show_vae_reconstruction, show_vae_generation
 
 
 class TestVAEGaussian(unittest.TestCase):
     def setUp(self) -> None:
         self._device = "cuda:0"
-        self._model = VaeGaussian().to(self._device)
+        self._model = VaeGaussian()
         self._data_module = MNISTDataModule()
 
     # noinspection PyTypeChecker
     def test_training(self):
         trainer = pl.Trainer(max_epochs=1, gpus=1)
         trainer.fit(self._model, self._data_module)
-        self._model.to(self._device)
 
     def test_testing(self):
         trainer = pl.Trainer(max_epochs=1, gpus=1)
         trainer.test(self._model, self._model.data_loader(100))
+
+    def test_show_vae_reconstruction(self):
+        show_vae_reconstruction(self._model, self._data_module, dpi=150, figsize=(2.5, 6))
+        plt.savefig("tmp/reconstruction.png")
+
+    def test_show_vae_generation(self):
+        show_vae_generation(self._model, dpi=150, figsize=(2.5, 6))
+        plt.savefig("tmp/generation.png")

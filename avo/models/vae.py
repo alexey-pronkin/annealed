@@ -47,7 +47,7 @@ class VAE(pl.LightningModule):
         return -torch.sum(torch.logsumexp(log_prediction, dim=0).mul_(1. / sample_count))
 
     def generate_x(self, n=25, device="cpu"):
-        eps = torch.FloatTensor(size=(n, self._latent_dimension)).normal_().to(device)
+        eps = torch.randn(size=(n, self._latent_dimension), device=device)
         x = self.decoder(eps)
         return x > 0
 
