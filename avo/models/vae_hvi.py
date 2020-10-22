@@ -7,12 +7,15 @@ from .hvi_transition import HVITransition
 
 class VAEHVI(VAE):
     def __init__(self, input_dimension=28, latent_dimension=40, hidden_dimensions=(300, 300), depth=5,
-                 transition_hidden_dimension=40):
+                 transition_hidden_dimension=40, transitions=None):
         super().__init__(input_dimension, latent_dimension, hidden_dimensions)
         self._mu_linear = nn.Linear(hidden_dimensions[-1], latent_dimension)
         self._logvar_linear = nn.Linear(hidden_dimensions[-1], latent_dimension)
-        self._transitions = nn.ModuleList([HVITransition(latent_dimension, transition_hidden_dimension,
+        if transitions is None:
+            self._transitions = nn.ModuleList([HVITransition(latent_dimension, transition_hidden_dimension,
                                           "LeakyReLU", hidden_dimensions[-1]) for _ in range(depth)])
+        else:
+            self._transitions = nn.ModuleList(transitions)
 
     def generate_z(self, x):
         hidden_x = self.encoder(x)

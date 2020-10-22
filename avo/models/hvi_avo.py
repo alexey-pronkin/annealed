@@ -9,8 +9,8 @@ import torch.nn as nn
 
 class HVIAVO(HVI):
     def __init__(self, input_dimension, depth, target, lr=1e-3, batch_size=64, hidden_dimension=2, beta1=0.999,
-                 beta2=0.999, optimizer="adam", k=100):
-        super().__init__(input_dimension, target, lr, batch_size, beta1, beta2, optimizer, k)
+                 beta2=0.999, optimizer="adam", k=100, transitions=None, is_flow=False):
+        super().__init__(input_dimension, target, lr, batch_size, beta1, beta2, optimizer, k, is_flow)
         """
         in_dim - input dimension
         h_dim - hidden dimension of transition
@@ -19,7 +19,10 @@ class HVIAVO(HVI):
         self._depth = depth
         self._alphas = np.linspace(1. / depth, 1., depth)
         self._initial_target = SimpleNormal(target.device)
-        self._transitions = nn.ModuleList([HVITransition(input_dimension, hidden_dimension) for _ in range(depth)])
+        if transitions is None:
+            self._transitions = nn.ModuleList([HVITransition(input_dimension, hidden_dimension) for _ in range(depth)])
+        else:
+            self._transitions = nn.ModuleList(transitions)
 
     def annealed_loss(self, alpha, z):
         return (1 - alpha) * self._initial_target.E(z) + alpha * self._target.E(z)

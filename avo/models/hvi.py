@@ -5,7 +5,7 @@ import torch
 
 class HVI(pl.LightningModule):
     def __init__(self, input_dimension, target, lr=1e-3, batch_size=64, beta1=0.999, beta2=0.999,
-                 optimizer="adam", k=100):
+                 optimizer="adam", k=100, is_flow=False):
         super().__init__()
         """
         in_dim - inout dimension
@@ -20,6 +20,7 @@ class HVI(pl.LightningModule):
         self._batch_size = batch_size
         self._input_dimension = input_dimension
         self._k = k
+        self._is_flow = is_flow
 
     def forward(self, x):
         raise NotImplementedError
@@ -41,18 +42,19 @@ class HVI(pl.LightningModule):
 
     # noinspection PyUnresolvedReferences
     def test_step(self, batch, batch_index):
-        x, _ = self.forward(batch)
+        x, entropy = self.forward(batch)
 
-        expanded_x = torch.repeat_interleave(x, self._k, dim=0)
+        if not self._is_flow:
+            expanded_x = torch.repeat_interleave(x, self._k, dim=0)
 
-        full_log_probability = 0
-        for transition in reversed(self._transitions):
-            expanded_x, log_probability = transition.forward_reverse(expanded_x)
-            full_log_probability += log_probability
-        full_log_probability += torch.sum(torch.distributions.normal.Normal(0, 1).log_prob(expanded_x), dim=1)
-        full_log_probability = full_log_probability.reshape(-1, self._k)
+            full_log_probability = 0
+            for transition in reversed(self._transitions):
+                expanded_x, log_probability = transition.forward_reverse(expanded_x)
+                full_log_probability += log_probability
+            full_log_probability += torch.sum(torch.distributions.normal.Normal(0, 1).log_prob(expanded_x), dim=1)
+            full_log_probability = full_log_probability.reshape(-1, self._k)
 
-        entropy = torch.logsumexp(full_log_probability, dim=1) - np.log(self._k)
+            entropy = torch.logsumexp(full_log_probability, dim=1) - np.log(self._k)
 
         energy = self._target.E(x)
         loss = torch.mean(energy + entropy)
