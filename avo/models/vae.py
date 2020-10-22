@@ -48,7 +48,7 @@ class VAE(pl.LightningModule):
 
     def generate_x(self, n=25, device="cpu"):
         eps = torch.FloatTensor(size=(n, self._latent_dimension)).normal_().to(device)
-        x = self.encoder(eps)
+        x = self.decoder(eps)
         return x > 0
 
     def configure_optimizers(self):
