@@ -5,8 +5,6 @@ import torch
 import torch.nn as nn
 from pyro.nn import AutoRegressiveNN
 
-from hvi import HVI
-
 from ..toy_dist import SimpleNormal
 from .hvi import HVI
 from .hvi_transition import HVITransition
