@@ -26,7 +26,8 @@ class VaeGaussian(VAE):
         kl_part = self.kl(z_mu, z_logvar) / scale
         x: torch.Tensor
         nll_part = self.nll_part_loss(reconstructed_x, x) / scale
-        loss = kl_part + nll_part
+        beta = self.calculate_beta()
+        loss = kl_part * beta + nll_part
         self.log("kl_part", kl_part)
         self.log("nll_part", nll_part)
         entropy = -torch.sum(0.5 * (np.log(2 * np.pi) + 1 + z_logvar))
