@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+import math
 
 from avo.normal_dist import batch_mvn
 
@@ -119,8 +120,46 @@ class Banana(Target):
         return batch_mvn.E(y, self.mu, self.inv_L, self.diag)
 
 
+
+class ToyA(Target):
+    def __init__(self, device='cpu'):
+        Target.__init__(self, device)
+        self.name = 'toy dist a'
+
+    def E(self, z):
+        a = -0.5 * ((torch.norm(z, dim=1) - 2) / 0.4)**2  # check dim
+        vec = torch.stack(
+            (-0.5 * ((z[:, 0] - 2) / 0.6)**2,
+             -0.5 * ((z[:, 0] + 2) / 0.6)**2)
+        )
+        return -torch.logsumexp(vec, dim=0) - a
+
+
+class ToyB(Target):
+    def __init__(self, device='cpu'):
+        Target.__init__(self, device)
+        self.name = 'toy dist b'
+
+    def E(self, z):
+        a = -0.5 * (2 * (torch.norm(0.5 * z, dim=1) - 2))**2  # check dim
+        vec = torch.stack(
+            (-0.5 * ((z[:, 0] - 2) / 0.6)**2,
+             -0.5 * (2 * torch.sin(z[:, 0]))**2,
+             -0.5 * ((z[:, 0] + z[:, 1] + 2.5) / 0.6)**2)
+        )
+        return -torch.logsumexp(vec, dim=0) - a
+
+
+class ToyC(Target):
+    def __init__(self, device='cpu'):
+        Target.__init__(self, device)
+        self.name = 'toy dist c'
+
+    def E(self, z):
+        return (2. - (z[:, 0]**2 + z[:, 1]**2 * 0.5)**0.5)**2
+
 class DFunction(Target):
-    def __init__(self, device):
+    def __init__(self, device='cpu'):
         Target.__init__(self, device)
         self.name = 'D'
 
@@ -134,3 +173,40 @@ class DFunction(Target):
         part4 = torch.sum(torch.distributions.normal.Normal(
             torch.tensor([0, -2.], device=self.device), 0.2).log_prob(x), dim=1) + np.log(0.2)
         return -torch.logsumexp(torch.stack([part1, part2, part3, part4], dim=0), dim=0)
+
+class ToyD(DFunction):
+    def __init__(self, device='cpu'):
+        Target.__init__(self, device)
+        self.name = 'four-mode mixture of Gaussian as a true target energy'
+
+class ToyE(Target):
+    def __init__(self, device='cpu'):
+        Target.__init__(self, device)
+        self.name = 'toy dist e'
+
+    def E(self, x):
+        z = x.squeeze()
+        w1 = torch.sin(math.pi * 0.5 * z[0])
+        w2 = 3 * torch.exp(-0.5 * (z[0] - 2)**2)
+        # return - 0.5 * ((z[1] - 2) / 0.4)**2 - 0.1 * z[0]**2
+        a = -0.5 * ((z[1] - w1) / 0.4)**2
+        return - a + 0.1 * z[0]**2
+
+
+class ToyF(Target):
+    def __init__(self, device='cpu'):
+        Target.__init__(self, device)
+        self.name = 'toy dist f'
+
+    def E(self, x):
+        z = x.squeeze()
+        w1 = torch.sin(torch.pi * 0.5 * z[0])
+        w2 = 3 * torch.exp(-0.5 * (z[0] - 2)**2)
+        vec = torch.stack((
+            -0.5 * ((z[1] - w1) / 0.35)**2,
+            -0.5 * ((z[1] - w1 + w2) / 0.35)**2,
+        ))
+        return -torch.logsumexp(vec, dim=0) + 0.05 * z[0] ** 2
+
+
+targets = [ToyA(), ToyB(), ToyC(), ToyD(), ToyD(), ToyE(), ToyF()]
