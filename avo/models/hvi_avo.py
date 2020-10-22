@@ -12,9 +12,9 @@ class HVIAVO(HVI):
                  beta2=0.999, optimizer="adam", k=100):
         super().__init__(input_dimension, target, lr, batch_size, beta1, beta2, optimizer, k)
         """
-        in_dim - inout dimension
-        h_dim - hidden dimension of the auto regressive NN
-        depth - number of IA transformations
+        in_dim - input dimension
+        h_dim - hidden dimension of transition
+        depth - number of transitions
         """
         self._depth = depth
         self._alphas = np.linspace(1. / depth, 1., depth)
