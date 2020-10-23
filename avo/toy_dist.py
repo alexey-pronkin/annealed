@@ -33,7 +33,7 @@ class Target:
         E.sum().backward()
         return x.grad
 
-    def plot2d_pdf(self, ax, bounds=((-6, 6), (-6, 6)), n_points=150):
+    def plot2d_pdf(self, ax, bounds=((-6, 6), (-6, 6)), n_points=500):
         bounds_x = bounds[0]
         bounds_y = bounds[1]
 
@@ -53,7 +53,7 @@ class Target:
             self.cached_grid = levels
         levels /= np.sum(levels)
         ax.contour(x, y, levels.T)
-        ax.title.set_text(self.name, fontsize=16)
+        ax.set_title(self.name, fontsize=16)
 
 
 class MixtureTarget(Target):
@@ -189,7 +189,7 @@ class DFunction(Target):
 class ToyD(DFunction):
     def __init__(self, device="cpu"):
         Target.__init__(self, device)
-        self.name = "four-mode mixture of Gaussian as a true target energy"
+        self.name = "toy dist d"
 
 
 class ToyE(Target):
@@ -304,7 +304,7 @@ class AnnealedF(ToyF):
         return ann
 
 
-targets = [ToyA(), ToyB(), ToyC(), ToyD(), ToyD(), ToyE(), ToyF()]
+targets = [ToyA(), ToyB(), ToyC(), ToyD(), ToyE(), ToyF()]
 
 anntargets = [
     AnnealedA,
