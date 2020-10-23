@@ -34,7 +34,7 @@ class IATransform(nn.Module):
         else:
             x = torch.exp(log_s) * x + m
             log_det = log_s.sum(axis=1)
-        return x, log_det
+        return x, -log_det
 
 class IAF(nn.Module):
     def __init__(self, in_dim, h_dim, depth, activation="ReLU", num_stable=False):
