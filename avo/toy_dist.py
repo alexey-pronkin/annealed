@@ -53,7 +53,7 @@ class Target:
             self.cached_grid = levels
         levels /= np.sum(levels)
         ax.contour(x, y, levels.T)
-        ax.title.set_text(self.name)
+        ax.title.set_text(self.name, fontsize=16)
 
 
 class MixtureTarget(Target):
