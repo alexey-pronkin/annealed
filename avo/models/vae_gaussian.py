@@ -28,12 +28,8 @@ class VaeGaussian(VAE):
         nll_part = self.nll_part_loss(reconstructed_x, x) / scale
         beta = self.calculate_beta()
         loss = kl_part * beta + nll_part
-        self.log("kl_part", kl_part)
-        self.log("nll_part", nll_part)
-        entropy = -torch.sum(0.5 * (np.log(2 * np.pi) + 1 + z_logvar))
-        self.log("elbo", loss)
-        self.log("entropy", entropy / scale)
-        return reconstructed_x, loss
+        # entropy = -torch.sum(0.5 * (np.log(2 * np.pi) + 1 + z_logvar))
+        return reconstructed_x, loss, nll_part, kl_part
 
     def log_importance_weight(self, x):
         z, z_mu, z_logvar = self.generate_z(x)

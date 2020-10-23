@@ -33,14 +33,20 @@ class VAE(pl.LightningModule):
         return self._current_beta
 
     def training_step(self, batch, batch_index):
-        x, loss = self.forward(batch[0])
-        self.log("loss", loss, on_step=True)
+        x, loss, nll_part, kl_part = self.forward(batch[0])
+        self.log("train_loss", loss)
+        self.log("train_kl", kl_part)
+        self.log("train_nll", nll_part)
+        self.log("train_elbo", kl_part + nll_part)
         return loss
 
     def validation_step(self, batch, batch_index):
-        x, loss = self.forward(batch[0])
-        self.log("loss", loss, on_step=True)
-        return loss
+        x, loss, nll_part, kl_part = self.forward(batch[0])
+        self.log("val_loss", loss)
+        self.log("val_kl", kl_part)
+        self.log("val_nll", nll_part)
+        self.log("val_elbo", kl_part + nll_part)
+        return kl_part + nll_part
 
     def test_step(self, batch, batch_index):
         loss = self.calculate_nll(batch[0])
@@ -55,7 +61,7 @@ class VAE(pl.LightningModule):
         return torch.sum(torch.distributions.normal.Normal(0, 1.).log_prob(z), dim=1)
 
     def reconstruct_x(self, x):
-        x_mean, _ = self.forward(x)
+        x_mean, _, _, _ = self.forward(x)
         return x_mean
 
     def log_importance_weight(self, x):

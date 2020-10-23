@@ -40,11 +40,7 @@ class VAEHVI(VAE):
         nll_part = self.nll_part_loss(reconstructed_x, x) / scale
         beta = self.calculate_beta()
         loss = kl_part * beta + nll_part
-        self.log("kl_part", kl_part)
-        self.log("nll_part", nll_part)
-        self.log("loss", loss)
-        self.log("entropy", torch.sum(entropy) / scale)
-        return reconstructed_x, loss
+        return reconstructed_x, loss, nll_part, kl_part
 
     def log_importance_weight(self, x):
         z, entropy = self.generate_z(x)

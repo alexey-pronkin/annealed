@@ -48,9 +48,4 @@ class VAEHVIAVO(VAEHVI):
         x: torch.Tensor
         nll_part = self.nll_part_loss(reconstructed_x, x) / scale
         loss = torch.mean(loss)
-        self.log("loss", loss)
-        self.log("kl_part", kl_part)
-        self.log("nll_part", nll_part)
-        self.log("elbo", kl_part + nll_part)
-        self.log("entropy", torch.sum(previous_log_probability) / scale)
-        return reconstructed_x, loss
+        return reconstructed_x, loss, nll_part, kl_part
