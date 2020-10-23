@@ -13,7 +13,6 @@ class Target:
     def __init__(self, device):
         self.cached_grid = None  # plot trivial round
         self.device = device
-
     def E(self, x):
         """
          Out:
@@ -71,9 +70,10 @@ class MixtureTarget(Target):
 
 class SimpleNormal(Target):
     def __init__(self, device, sigma=1.0):
-        super().__init__(device)
         self._sigma = sigma
         self.name = "normal2d"
+        super().__init__(device)
+
 
     def E(self, x):
         return batch_mvn.E(x, 0, self._sigma, True)

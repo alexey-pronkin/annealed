@@ -70,7 +70,7 @@ class IAF(nn.Module):
 
 
 class Householder(nn.Module):
-    def __init__(self, input_dimension, activation="ReLU", num_stable=False):
+    def __init__(self, input_dimension, activation="ReLU", num_stable=True):
         super(Householder, self).__init__()
         """
         input_dimension - inout dimention = v_dim
@@ -81,9 +81,10 @@ class Householder(nn.Module):
         self.v_dim = input_dimension
         self.v = nn.Parameter(torch.Tensor(self.v_dim))
         self.reset_parameters()
+        self.num_stable = num_stable
 
     def reset_parameters(self) -> None:
-        torch.init.kaiming_uniform_(self.v, a=math.sqrt(5))
+        torch.nn.init.uniform_(self.v, a=-1, b=1)
 
     def forward(self, z, v=None):
         """
@@ -95,7 +96,7 @@ class Householder(nn.Module):
             v = self.v.repeat(batch, 1)
         else:
             v = v.repeat(batch, 1)
-        if num_stable:
+        if self.num_stable:
             vvT = torch.bmm(v.unsqueeze(2), v.unsqueeze(1))
             vvTz = torch.bmm(vvT, z.unsqueeze(2)).squeeze(2)
         else:
@@ -104,7 +105,7 @@ class Householder(nn.Module):
                 1
             )  # memory inefficient, however fast, could use author instead  
             # v * v_T : batch_dot( B x L x 1 * B x 1 x L ) = B x L x L
-            
+
             # v * v_T * z
             vvTz = (vvT * z).sum(
                 1
@@ -220,7 +221,6 @@ class HouseholderAVO(HVIAVO):
     ):
         transitions = [Householder(input_dimension) for _ in range(depth)]
         super().__init__(
-            self,
             input_dimension=input_dimension,
             depth=depth,
             target=target,
@@ -260,7 +260,7 @@ class IAFAVO(HVIAVO):
     ):
         transitions = [
             IATransform(
-                in_dim=hidden_dimension,
+                in_dim=input_dimension,
                 h_dim=AR_dimensions,
                 rand_perm=True,
                 activation=activation,
@@ -269,7 +269,6 @@ class IAFAVO(HVIAVO):
             for _ in range(depth)
         ]
         super().__init__(
-            self,
             input_dimension=input_dimension,
             depth=depth,
             target=target,

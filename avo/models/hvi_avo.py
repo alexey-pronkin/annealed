@@ -23,17 +23,32 @@ class AnnealedTarget(ToyD):
 
 
 class HVIAVO(HVI):
-    def __init__(self, input_dimension, depth, target, lr=1e-3, batch_size=64, hidden_dimension=2,
-        beta1=0.999, beta2=0.999, optimizer="adam", k=100, transitions=None, is_flow=False):
-        super().__init__(input_dimension=input_dimension, 
-        target=target, 
-        lr=lr, 
-        batch_size=batch_size, 
-        beta1=beta1, 
-        beta2=beta2, 
-        optimizer=optimizer, 
-        k=k, 
-        is_flow=is_flow)
+    def __init__(
+        self,
+        input_dimension,
+        depth,
+        target,
+        lr=1e-3,
+        batch_size=64,
+        hidden_dimension=2,
+        beta1=0.999,
+        beta2=0.999,
+        optimizer="adam",
+        k=100,
+        transitions=None,
+        is_flow=False,
+    ):
+        super().__init__(
+            input_dimension=input_dimension,
+            target=target,
+            lr=lr,
+            batch_size=batch_size,
+            beta1=beta1,
+            beta2=beta2,
+            optimizer=optimizer,
+            k=k,
+            is_flow=is_flow,
+        )
         """
         in_dim - input dimension
         h_dim - hidden dimension of transition
@@ -42,6 +57,7 @@ class HVIAVO(HVI):
         self._depth = depth
         self._alphas = np.linspace(1.0 / depth, 1.0, depth)
         self._initial_target = SimpleNormal(target.device)
+        self.normal = torch.distributions.normal.Normal(0, 1)
         if transitions is None:
             self._transitions = nn.ModuleList([HVITransition(input_dimension, hidden_dimension) for _ in range(depth)])
         else:
@@ -54,8 +70,8 @@ class HVIAVO(HVI):
         """
         Return transformed sample and log determinant
         """
-        previous_log_probability = torch.sum(torch.distributions.normal.Normal(0, 1).log_prob(x), dim=1)
-        loss = torch.sum(torch.distributions.normal.Normal(0, 1).log_prob(x), dim=1)
+        previous_log_probability = torch.sum(self.normal.log_prob(x), dim=1)
+        loss = torch.sum(self.normal.log_prob(x), dim=1)
         for i, target in enumerate(self._transitions_targets):
             previous_log_probability = previous_log_probability.detach()
             x = x.detach()
