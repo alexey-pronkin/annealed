@@ -9,7 +9,8 @@ from .vae_encoder import VaeEncoder
 
 # noinspection PyArgumentList
 class VAE(pl.LightningModule):
-    def __init__(self, input_dimension=28, latent_dimension=40, hidden_dimensions=(300, 300), lr=1e-3):
+    def __init__(self, input_dimension=28, latent_dimension=40, hidden_dimensions=(300, 300), lr=1e-3,
+                 beta=0, gamma=1):
         super(VAE, self).__init__()
         self.encoder = VaeEncoder(input_dimension=input_dimension, hidden_dimensions=hidden_dimensions)
         self.decoder = VaeDecoder(hidden_dimensions=hidden_dimensions, latent_dimension=latent_dimension,
@@ -19,11 +20,17 @@ class VAE(pl.LightningModule):
         self._loss = nn.BCEWithLogitsLoss(reduction="sum")
         self._sample_loss = nn.BCEWithLogitsLoss(reduction="none")
         self.init_params()
+        self._current_beta = beta
+        self._gamma = gamma
 
     def init_params(self):
         for m in self.modules():
             if isinstance(m, nn.Linear) or isinstance(m, nn.Conv2d) or isinstance(m, nn.ConvTranspose2d):
                 nn.init.xavier_normal_(m.weight.data)
+
+    def calculate_beta(self):
+        self._current_beta = 1 - (1 - self._gamma) * (1 - self._current_beta)
+        return self._current_beta
 
     def training_step(self, batch, batch_index):
         x, loss = self.forward(batch[0])
