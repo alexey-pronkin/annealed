@@ -2,14 +2,15 @@ import torch.nn as nn
 
 
 class VaeDecoder(nn.Module):
-    def __init__(self, latent_dimension=40, hidden_dimensions=(300, 300), output_dimension=28):
+    def __init__(self, latent_dimension=40, hidden_dimensions=(300, 300), output_dimension=28, batch_norm=False):
         super().__init__()
         modules = []
 
         previous_dimension = latent_dimension
         for hidden_dimension in reversed(hidden_dimensions):
             modules.append(nn.Linear(previous_dimension, hidden_dimension))
-            modules.append(nn.BatchNorm1d(hidden_dimension))
+            if batch_norm:
+                modules.append(nn.BatchNorm1d(hidden_dimension))
             modules.append(nn.LeakyReLU())
             previous_dimension = hidden_dimension
         modules.append(nn.Linear(previous_dimension, output_dimension * output_dimension))

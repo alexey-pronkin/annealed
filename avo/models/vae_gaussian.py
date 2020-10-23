@@ -6,8 +6,8 @@ import torch.nn
 
 
 class VaeGaussian(VAE):
-    def __init__(self, input_dimension=28, latent_dimension=40, hidden_dimensions=(300, 300)):
-        super().__init__(input_dimension, latent_dimension, hidden_dimensions)
+    def __init__(self, input_dimension=28, latent_dimension=40, hidden_dimensions=(300, 300), **kwargs):
+        super().__init__(input_dimension, latent_dimension, hidden_dimensions, **kwargs)
         self._mu_linear = nn.Linear(hidden_dimensions[-1], latent_dimension)
         self._logvar_linear = nn.Linear(hidden_dimensions[-1], latent_dimension)
 

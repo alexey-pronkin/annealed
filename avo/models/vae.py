@@ -10,11 +10,12 @@ from .vae_encoder import VaeEncoder
 # noinspection PyArgumentList
 class VAE(pl.LightningModule):
     def __init__(self, input_dimension=28, latent_dimension=40, hidden_dimensions=(300, 300), lr=1e-3,
-                 beta=0, gamma=1):
+                 beta=0, gamma=1, batch_norm=False):
         super(VAE, self).__init__()
-        self.encoder = VaeEncoder(input_dimension=input_dimension, hidden_dimensions=hidden_dimensions)
+        self.encoder = VaeEncoder(input_dimension=input_dimension, hidden_dimensions=hidden_dimensions,
+                                  batch_norm=batch_norm)
         self.decoder = VaeDecoder(hidden_dimensions=hidden_dimensions, latent_dimension=latent_dimension,
-                                  output_dimension=input_dimension)
+                                  output_dimension=input_dimension, batch_norm=batch_norm)
         self._latent_dimension = latent_dimension
         self._lr = lr
         self._loss = nn.BCEWithLogitsLoss(reduction="sum")

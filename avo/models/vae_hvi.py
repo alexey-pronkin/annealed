@@ -7,8 +7,8 @@ from .hvi_transition import HVITransition
 
 class VAEHVI(VAE):
     def __init__(self, input_dimension=28, latent_dimension=40, hidden_dimensions=(300, 300), depth=5,
-                 transition_hidden_dimension=40, transitions=None, beta=1, gamma=0):
-        super().__init__(input_dimension, latent_dimension, hidden_dimensions, beta=beta, gamma=gamma)
+                 transition_hidden_dimension=40, transitions=None, **kwargs):
+        super().__init__(input_dimension, latent_dimension, hidden_dimensions, **kwargs)
         self._mu_linear = nn.Linear(hidden_dimensions[-1], latent_dimension)
         self._logvar_linear = nn.Linear(hidden_dimensions[-1], latent_dimension)
         if transitions is None:
