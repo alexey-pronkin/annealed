@@ -37,6 +37,11 @@ class VAE(pl.LightningModule):
         self.log("loss", loss, on_step=True)
         return loss
 
+    def validation_step(self, batch, batch_index):
+        x, loss = self.forward(batch[0])
+        self.log("loss", loss, on_step=True)
+        return loss
+
     def test_step(self, batch, batch_index):
         loss = self.calculate_nll(batch[0])
         self.log("loss", loss)
@@ -64,7 +69,7 @@ class VAE(pl.LightningModule):
     def generate_x(self, n=25, device="cpu"):
         eps = torch.randn(size=(n, self._latent_dimension), device=device)
         x = self.decoder(eps)
-        return x > 0
+        return torch.sigmoid(x)
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self._lr)
