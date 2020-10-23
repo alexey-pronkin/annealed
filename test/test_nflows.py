@@ -4,11 +4,12 @@ import pytorch_lightning as pl
 import torch
 from avo.models import IAFELBO, IAFAVO, HouseholderELBO, HouseholderAVO
 from avo.toy_dist import DFunction, PickleRick
+from test_config import device
 
 
 class TestIAFELBO(unittest.TestCase):
     def setUp(self) -> None:
-        self.device = "cuda:0"
+        self.device = device
         l_target = torch.cholesky(torch.tensor([[1., 0.95], [0.95, 1.]]))
         # target = PickleRick(torch.tensor([0., 0.]).unsqueeze(0).to(device), l_target.to(device))
         target = DFunction(device)
@@ -17,7 +18,7 @@ class TestIAFELBO(unittest.TestCase):
     def test_training(self):
         trainer = pl.Trainer(max_epochs=1, gpus=1)
         trainer.fit(self._model, self._model.data_loader(100))
-        self._model.to("cuda:0")
+        self._model.to(self.device)
         self._model.sample(100)
 
     def test_testing(self):
@@ -28,7 +29,7 @@ class TestIAFELBO(unittest.TestCase):
 
 class TestIAFAVO(unittest.TestCase):
     def setUp(self) -> None:
-        self._device = "cpu"
+        self._device = device
         l_target = torch.cholesky(torch.tensor([[1., 0.95], [0.95, 1.]]))
         target = PickleRick(torch.tensor([0., 0.]).unsqueeze(0).to(self._device), l_target.to(self._device))
 
@@ -45,7 +46,7 @@ class TestIAFAVO(unittest.TestCase):
         trainer.test(self._model, self._model.data_loader(100))
 class TestHVIELBO(unittest.TestCase):
     def setUp(self) -> None:
-        device = "cuda:0"
+        self.device = device
         l_target = torch.cholesky(torch.tensor([[1., 0.95], [0.95, 1.]]))
         # target = PickleRick(torch.tensor([0., 0.]).unsqueeze(0).to(device), l_target.to(device))
         target = DFunction(device)
@@ -54,7 +55,7 @@ class TestHVIELBO(unittest.TestCase):
     def test_training(self):
         trainer = pl.Trainer(max_epochs=1, gpus=1)
         trainer.fit(self._model, self._model.data_loader(100))
-        self._model.to("cuda:0")
+        self._model.to(self.device)
         self._model.sample(100)
 
     def test_testing(self):
