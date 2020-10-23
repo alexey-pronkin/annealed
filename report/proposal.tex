@@ -1,0 +1,100 @@
+\documentclass[a4paper]{article}
+
+\usepackage[english]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[a4paper,top=3cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=2cm]{geometry}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+
+
+\usepackage[nottoc]{tocbibind}
+
+% pronkinalexeyviktorovich@gmail.com
+
+
+\title{Project proposal \\ Improving Explorability in Variational Inference with Annealed Variational Objectives}
+\author{Mikhail Kurenkov, Timur Chikichev, Aleksei Pronkin}
+\date{September 2020}
+
+\begin{document}
+
+\maketitle
+
+Github repository:
+\url{https://github.com/alexey-pronkin/annealed}
+
+% 1-2 pages A4 pdf
+% Brief description of project, goals, planned experiments
+% Hard deadline: 22/09, otherwise 0 points for whole project
+% Encourage to submit earlier get feedback and start to work
+% For you own project topic proposal, you need the approval, so better to submit
+% earlier
+
+
+\subsection*{Introduction}
+
+% Описать проблему с выборов приоров. Мы можем 
+
+% Наша проблема оверконфидент
+
+% Две проблемы: мультимодальность (решается оптимизацией и/или выбором хорошего праера) и проблема оверконфиденс
+
+% Добавить что-то про speciﬁcally for hierarchical VI methods.
+
+% Despite the advances in the representational capacity of approximate distributions for variational inference, the optimization process can still limit the density that is ultimately learned. We demonstrate the drawbacks of biasing the true posterior to be unimodal, and introduce Annealed Variational Objectives (AVO) into the training of hierarchical variational methods. Inspired by Annealed Importance Sampling,
+% the proposed method facilitates learning by incorporating energy tempering into
+% the optimization objective. In our experiments, we demonstrate our method’s
+% robustness to deterministic warm up, and the beneﬁts of encouraging exploration
+% in the latent space.
+
+Variational Inference is widely used for solving a Bayesian inference problem. It is different from Markov Chain Monte Carlo(MCMC) methods, which rely on the Markov chain to reach equilibrium; in VI one can easily draw i.i.d. samples from the variational distribution, and enjoy lower variance in inference. However, vanilla VI has two major problems: overconfidence in prediction distribution and bad local optima with the unimodal posterior distribution. Paper \cite{main_Huang2018ImprovingEI} claims that the optimization process could limit the density of posterior distribution. The authors of this work aim to solve these issues with different objective functions and some optimization tricks. We also investigate closely related posterior collapse problem, where the generative model learns to ignore a subset of the latent variable. The paper \cite{lucas2019understanding} gives a general introduction to this phenomenon. One of the solutions to this problem is to use annealing strategies for inference, for example, alpha or beta annealing. 
+
+The paper \cite{main_Huang2018ImprovingEI} states that due to the zero-forcing property of the KL the true posterior tends to be unimodal in usual variational inference, {the drawbacks of biasing}.
+The author introduces the hybrid method of alpha annealing and Annealed importance sampling, called Annealed Variational Objectives (AVO). The method uses a highly flexible parametric form of the posterior distribution (assuming we have a rich family of approximate posterior at the hands). % , where learning of the auxiliary distribution, i.e. variational distribution, is through maximizing the ELBO.
+% without changing prior distribution to richer variational family (that could influences on the performance of the inference). 
+% Overconfidence arises because VI doesn't propagate uncertanty well especially it is a problem for amortized VI. As a result VI ignores some of latent variables. Не уверен в этой фразе
+
+% Variational Inference(VI) has played an important role in Bayesian model uncertainty calibration and in unsupervised representation learning.  But unfortunately, the quality of variational inference is influenced by a phenomenon known as posterior collapse, where the generative model learns to ignore a subset of the latent variable. 
+
+% Posterior collapse in Variational Autoencoders (VAEs) arises when the variational distribution closely matches the uninformative prior for a subset of latent variables. 
+
+\subsection*{Goal}
+During this project we are going to implement method from \cite{main_Huang2018ImprovingEI} and repeat experiments of this paper. 
+
+Experiments:
+\begin{enumerate}
+    \item Biased noise model.
+    \item Toy energy fitting.
+    \item Quantitative analysis on robustness to beta annealing.
+    \item Amortized inference on MNIST and CelebA datasets.
+\end{enumerate}
+
+We also want to demonstrate posterior collapse on toy example and show how method from AVO \cite{main_Huang2018ImprovingEI} can mitigate this problem. Also we want to check if Variational Auto Encoder (VAE) can be improved by the AVO method on the MNIST dataset.
+
+\subsection*{General plan}
+\begin{enumerate}
+    \item Re-implement Variational-Auto Encoder (VAE) \cite{kingma2013autoencoding} with parameters from \cite{TW:2016}. %\url{https://github.com/jmtomczak/vae_householder_flow}
+    \item Implement Hierarchical Variational Model (HVM) based on \cite{ranganath2015hierarchical}.
+    \item Implement Importance Weighted Auto-Encoder (IWAE) based on \cite{burda2015importance}.
+    \item Implement Hierarchical Variational Inference (HVI) method  based on \cite{ranganath2015hierarchical}.
+    \item Implement Annealed Variational Objectives (AVO) method \cite{main_Huang2018ImprovingEI}.
+    \item Analyze a behavior AVO method on toy examples.
+    \item Conduct experiments with VAE and AVO on the MNIST and CelebA datasets.
+\end{enumerate}
+
+\subsection*{Acknowledgements}
+
+The project represents the paper \cite{main_Huang2018ImprovingEI}.
+We use \cite{lucas2019understanding} as an introduction to the problem and \cite{Knoblauch2019GeneralizedVI} as an introduction to generalized variational inference problem. 
+
+We planned to use and rewrite some code from \url{https://github.com/joelouismarino/iterative_inference/}, \url{https://github.com/jmtomczak/vae_householder_flow}, \url{https://github.com/AntixK/PyTorch-VAE}, , \url{https://github.com/haofuml/cyclical_annealing} and \url{https://github.com/ajayjain/lmconv}. (We assume, that first two repositories were used in the original paper \cite{main_Huang2018ImprovingEI} closed source code) 
+
+We want to try to apply annealing strategies for some of SoTA AE for MNIST \url{https://paperswithcode.com/sota/image-generation-on-mnist} if we will have time.
+
+\bibliographystyle{unsrt}
+\bibliography{main}
+
+\end{document}
