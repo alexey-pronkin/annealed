@@ -1,4 +1,3 @@
-import pytorch_lightning as pl
 import torch
 import numpy as np
 from .hvi_transition import HVITransition

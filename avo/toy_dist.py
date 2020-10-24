@@ -33,28 +33,19 @@ class Target:
         E.sum().backward()
         return x.grad
 
-    def plot2d_pdf(self, ax, bounds=((-6, 6), (-6, 6)), n_points=500):
+    def plot2d_pdf(self, ax, bounds=((-6, 6), (-6, 6)), n_points=1000):
         bounds_x = bounds[0]
         bounds_y = bounds[1]
-
-        x = np.linspace(*bounds_x, n_points)
-        y = np.linspace(*bounds_y, n_points)
-        levels = np.zeros((len(x), len(y)))
+        x = torch.linspace(*bounds_x, n_points, device=self.device, dtype=torch.float)
+        y = torch.linspace(*bounds_y, n_points, device=self.device, dtype=torch.float)
         if self.cached_grid is not None:
             levels = self.cached_grid
         else:
-            for i in range(len(x)):
-                for j in range(len(y)):
-                    levels[i, j] = np.exp(
-                        -self.E(torch.tensor([x[i], y[j]], device=self.device, dtype=torch.float).unsqueeze(0))
-                        .data.cpu()
-                        .numpy()
-                    )
+            levels = torch.exp(-self.E(torch.cartesian_prod(x, y).view(-1, 2))).view(n_points, n_points).data.cpu().numpy()
             self.cached_grid = levels
         levels /= np.sum(levels)
         ax.contour(x, y, levels.T)
         ax.set_title(self.name, fontsize=16)
-
 
 class MixtureTarget(Target):
     def __init__(self, target1, target2, alpha):
