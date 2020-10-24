@@ -20,7 +20,19 @@ class IATransform(nn.Module):
             nonlinearity = get_activation(activation)
         else:
             self.permutation = torch.arange(in_dim, dtype=torch.int64)
-        self.AR = AutoRegressiveNN(input_dim=in_dim, hidden_dims=h_dim, nonlinearity=nonlinearity)  # nn.ELU(0.6))
+        # if len(h_dim)==1:
+        #     self.AR = nn.ModuleList([
+        #         nn.Linear(in_features=in_dim, out_features=h_dim),
+        #         nonlinearity(),
+        #         nn.Linear(in_features=h_dim, out_features=in_dim)]
+        #         )
+        # else:
+        #     self.AR = nn.ModuleList([
+        #         nn.Sequential(
+        #             nn.Linear(in_features=in_dim, out_features=out_dim),
+        #             nonlinearity()) for in_dim, out_dim in zip([in_dim, h_dim[:-1]], [h_dim, in_dim])])# AutoRegressiveNN(input_dim=in_dim, hidden_dims=h_dim, nonlinearity=nonlinearity)  # nn.ELU(0.6))
+        # TODO: make forward
+        self.AR = AutoRegressiveNN(input_dim=in_dim, hidden_dims=h_dim, nonlinearity=nonlinearity, permutation=self.permutation)  # nn.ELU(0.6))
         self.num_stable = num_stable
 
     def forward(self, x):
