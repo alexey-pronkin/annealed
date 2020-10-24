@@ -35,9 +35,15 @@ class VAE(pl.LightningModule):
                 nn.init.xavier_normal_(m.weight.data)
 
     def calculate_beta(self):
+        return self._current_beta
+
+    def update_beta(self):
         self._current_beta += self._gamma
         self._current_beta = np.clip(self._current_beta, 0, 1)
-        return self._current_beta
+
+    def on_train_end(self) -> None:
+        super().on_train_end()
+        self.update_beta()
 
     def training_step(self, batch, batch_index):
         x, loss, nll_part, kl_part = self.forward(batch[0])
