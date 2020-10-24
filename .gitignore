@@ -5,6 +5,9 @@ __pycache__/
 .idea
 .vscode
 tmp
+lightning_logs
+MNIST
+mlruns
 
 # C extensions
 *.so
