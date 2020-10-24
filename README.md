@@ -46,15 +46,15 @@ During this project we are going to implement methods and repeat experiments of 
 
 Annealed toy distributions:
 
-[alt text](report/images/transitions_targets_abc.png, Annealed target distributions)
+![alt text](report/images/transitions_targets_abc.png "Annealed target distributions")
 
 Toy distributions experiments:
 
-[alt text](toy_figs.png, Toy experiments)
+![alt text](toy_figs.png "Toy experiments")
 
 Reconstruction of VAE. Left is ground truth, right is reconstructed.
 
-[alt text](report/images/reconstruction.png, VAE reconstructions)
+![alt text](report/images/reconstruction.png "VAE reconstructions")
 
 ## Models
 
