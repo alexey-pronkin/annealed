@@ -40,7 +40,11 @@ During this project we are going to implement methods and repeat experiments of 
 - Biased noise model.
 - Toy energy fitting.
 - Quantitative analysis on robustness to beta annealing.
-- Amortized inference on MNIST and CelebA datasets.
+- Amortized inference on MNIST dataset.
+
+## Results
+
+![alt text](toy_figs.png, Toy experiments)
 
 ## Models
 
