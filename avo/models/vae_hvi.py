@@ -7,8 +7,8 @@ from .hvi_transition import HVITransition
 
 class VAEHVI(VAE):
     def __init__(self, input_dimension=28, latent_dimension=40, hidden_dimensions=(300, 300), depth=5,
-                 transition_hidden_dimension=40, transitions=None, beta=1, gamma=0):
-        super().__init__(input_dimension, latent_dimension, hidden_dimensions, beta=beta, gamma=gamma)
+                 transition_hidden_dimension=40, transitions=None, **kwargs):
+        super().__init__(input_dimension, latent_dimension, hidden_dimensions, **kwargs)
         self._mu_linear = nn.Linear(hidden_dimensions[-1], latent_dimension)
         self._logvar_linear = nn.Linear(hidden_dimensions[-1], latent_dimension)
         if transitions is None:
@@ -40,11 +40,7 @@ class VAEHVI(VAE):
         nll_part = self.nll_part_loss(reconstructed_x, x) / scale
         beta = self.calculate_beta()
         loss = kl_part * beta + nll_part
-        self.log("kl_part", kl_part)
-        self.log("nll_part", nll_part)
-        self.log("loss", loss)
-        self.log("entropy", torch.sum(entropy) / scale)
-        return reconstructed_x, loss
+        return reconstructed_x, loss, nll_part, kl_part
 
     def log_importance_weight(self, x):
         z, entropy = self.generate_z(x)
