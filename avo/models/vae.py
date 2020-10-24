@@ -10,7 +10,7 @@ from .vae_encoder import VaeEncoder
 # noinspection PyArgumentList
 class VAE(pl.LightningModule):
     def __init__(self, input_dimension=28, latent_dimension=40, hidden_dimensions=(300, 300), lr=1e-3,
-                 beta=0, gamma=1, optim_config=None, encoder_config=None):
+                 beta=1, gamma=0, optim_config=None, encoder_config=None):
         super(VAE, self).__init__()
         if encoder_config is None:
             encoder_config = {}
@@ -35,7 +35,8 @@ class VAE(pl.LightningModule):
                 nn.init.xavier_normal_(m.weight.data)
 
     def calculate_beta(self):
-        self._current_beta = 1 - (1 - self._gamma) * (1 - self._current_beta)
+        self._current_beta += self._gamma
+        self._current_beta = np.clip(self._current_beta, 0, 1)
         return self._current_beta
 
     def training_step(self, batch, batch_index):
