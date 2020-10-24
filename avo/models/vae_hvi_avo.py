@@ -8,9 +8,9 @@ import numpy as np
 # noinspection PyTypeChecker
 class VAEHVIAVO(VAEHVI):
     def __init__(self, input_dimension=28, latent_dimension=40, hidden_dimensions=(300, 300), depth=5,
-                 transition_hidden_dimension=40, beta=1, gamma=0, alpha=0.2):
+                 transition_hidden_dimension=40, alpha=0.2, **kwargs):
         super().__init__(input_dimension, latent_dimension, hidden_dimensions, depth,
-                         transition_hidden_dimension, beta=beta, gamma=gamma)
+                         transition_hidden_dimension, **kwargs)
         self._alphas = np.linspace(1. / depth, 1, depth)
         self._alpha = alpha
 
@@ -48,9 +48,4 @@ class VAEHVIAVO(VAEHVI):
         x: torch.Tensor
         nll_part = self.nll_part_loss(reconstructed_x, x) / scale
         loss = torch.mean(loss)
-        self.log("loss", loss)
-        self.log("kl_part", kl_part)
-        self.log("nll_part", nll_part)
-        self.log("elbo", kl_part + nll_part)
-        self.log("entropy", torch.sum(previous_log_probability) / scale)
-        return reconstructed_x, loss
+        return reconstructed_x, loss, nll_part, kl_part

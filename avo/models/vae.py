@@ -10,11 +10,14 @@ from .vae_encoder import VaeEncoder
 # noinspection PyArgumentList
 class VAE(pl.LightningModule):
     def __init__(self, input_dimension=28, latent_dimension=40, hidden_dimensions=(300, 300), lr=1e-3,
-                 beta=0, gamma=1):
+                 beta=1, gamma=0, optim_config=None, encoder_config=None):
         super(VAE, self).__init__()
-        self.encoder = VaeEncoder(input_dimension=input_dimension, hidden_dimensions=hidden_dimensions)
+        if encoder_config is None:
+            encoder_config = {}
+        self.encoder = VaeEncoder(input_dimension=input_dimension, hidden_dimensions=hidden_dimensions,
+                                  **encoder_config)
         self.decoder = VaeDecoder(hidden_dimensions=hidden_dimensions, latent_dimension=latent_dimension,
-                                  output_dimension=input_dimension)
+                                  output_dimension=input_dimension, **encoder_config)
         self._latent_dimension = latent_dimension
         self._lr = lr
         self._loss = nn.BCEWithLogitsLoss(reduction="sum")
@@ -22,6 +25,9 @@ class VAE(pl.LightningModule):
         self.init_params()
         self._current_beta = beta
         self._gamma = gamma
+        if optim_config is None:
+            optim_config = {}
+        self._optim_config = optim_config
 
     def init_params(self):
         for m in self.modules():
@@ -29,18 +35,31 @@ class VAE(pl.LightningModule):
                 nn.init.xavier_normal_(m.weight.data)
 
     def calculate_beta(self):
-        self._current_beta = 1 - (1 - self._gamma) * (1 - self._current_beta)
         return self._current_beta
 
+    def update_beta(self):
+        self._current_beta += self._gamma
+        self._current_beta = np.clip(self._current_beta, 0, 1)
+
+    def on_train_epoch_end(self, outputs) -> None:
+        super().on_train_epoch_end(outputs)
+        self.update_beta()
+
     def training_step(self, batch, batch_index):
-        x, loss = self.forward(batch[0])
-        self.log("loss", loss, on_step=True)
+        x, loss, nll_part, kl_part = self.forward(batch[0])
+        self.log("train_loss", loss)
+        self.log("train_kl", kl_part)
+        self.log("train_nll", nll_part)
+        self.log("train_elbo", kl_part + nll_part)
         return loss
 
     def validation_step(self, batch, batch_index):
-        x, loss = self.forward(batch[0])
-        self.log("loss", loss, on_step=True)
-        return loss
+        x, loss, nll_part, kl_part = self.forward(batch[0])
+        self.log("val_loss", loss)
+        self.log("val_kl", kl_part)
+        self.log("val_nll", nll_part)
+        self.log("val_elbo", kl_part + nll_part)
+        return kl_part + nll_part
 
     def test_step(self, batch, batch_index):
         loss = self.calculate_nll(batch[0])
@@ -55,7 +74,7 @@ class VAE(pl.LightningModule):
         return torch.sum(torch.distributions.normal.Normal(0, 1.).log_prob(z), dim=1)
 
     def reconstruct_x(self, x):
-        x_mean, _ = self.forward(x)
+        x_mean, _, _, _ = self.forward(x)
         return x_mean
 
     def log_importance_weight(self, x):
@@ -72,7 +91,7 @@ class VAE(pl.LightningModule):
         return torch.sigmoid(x)
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=self._lr)
+        optimizer = torch.optim.Adam(self.parameters(), lr=self._lr, **self._optim_config)
         return optimizer
 
     def nll_part_loss(self, x, target):
