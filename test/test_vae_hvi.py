@@ -2,15 +2,17 @@ import unittest
 
 import matplotlib.pyplot as plt
 import pytorch_lightning as pl
+import torch
 
 from avo import MNISTDataModule
 from avo.models import VAEHVI
 from avo.utils.vae_result_evaluator import show_vae_reconstruction, show_vae_generation
+from test_config import gpu_device
 
 
 class TestVAEHVI(unittest.TestCase):
     def setUp(self) -> None:
-        self._device = "cuda:0"
+        self._device = gpu_device
         self._model = VAEHVI()
         self._data_module = MNISTDataModule()
 

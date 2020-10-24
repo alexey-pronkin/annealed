@@ -1,0 +1,342 @@
+
+\documentclass[10pt,letterpaper]{article}
+\usepackage[top=0.85in,left=2.75in,footskip=0.75in,marginparwidth=2in]{geometry}
+
+% use Unicode characters - try changing the option if you run into troubles with special characters (e.g. umlauts)
+\usepackage[utf8]{inputenc}
+% clean citations
+\usepackage{cite}
+% hyperref makes references clicky. use \url{www.example.com} or \href{www.example.com}{description} to add a clicky url
+\usepackage{nameref,hyperref}
+% line numbers
+\usepackage[right]{lineno}
+% improves typesetting n LaTeX
+\usepackage{microtype}
+\DisableLigatures[f]{encoding = *, family = * }
+% text layout - change as needed
+\raggedright
+\setlength{\parindent}{0.5cm}
+\textwidth 5.25in 
+\textheight 8.75in
+
+% Remove % for double line spacing
+%\usepackage{setspace} 
+%\doublespacing
+% use adjustwidth environment to exceed text width (see examples in text)
+\usepackage{changepage}
+
+% adjust caption style
+\usepackage[aboveskip=1pt,labelfont=bf,labelsep=period,singlelinecheck=off]{caption}
+
+% remove brackets from references
+\makeatletter
+\renewcommand{\@biblabel}[1]{\quad#1.}
+\makeatother
+
+% headrule, footrule and page numbers
+\usepackage{lastpage,fancyhdr,graphicx}
+\usepackage{epstopdf}
+\pagestyle{myheadings}
+\pagestyle{fancy}
+\fancyhf{}
+\rfoot{\thepage/\pageref{LastPage}}
+\renewcommand{\footrule}{\hrule height 2pt \vspace{2mm}}
+\fancyheadoffset[L]{2.25in}
+\fancyfootoffset[L]{2.25in}
+
+% use \textcolor{color}{text} for colored text (e.g. highlight to-do areas)
+\usepackage{color}
+
+% define custom colors (this one is for figure captions)
+\definecolor{Gray}{gray}{.25}
+
+% this is required to include graphics
+\usepackage{graphicx}
+
+% use if you want to put caption to the side of the figure - see example in text
+\usepackage{sidecap}
+
+% use for have text wrap around figures
+\usepackage{wrapfig}
+\usepackage[pscoord]{eso-pic}
+\usepackage[fulladjust]{marginnote}
+\reversemarginpar
+
+
+\title{Project report \\ Improving Explorability in Variational Inference with Annealed Variational Objectives}
+\author{Mikhail Kurenkov, Timur Chikichev, Aleksei Pronkin}
+\date{23 October 2020}
+
+
+% document begins here
+\begin{document}
+\vspace*{0.35in}
+
+% title goes here:
+\begin{flushleft}
+{\Large
+\textbf\newline{Project report \\ Improving Explorability in Variational Inference with Annealed Variational Objectives.}
+}
+\newline
+% authors go here:
+\\
+{Mikhail Kurenkov,
+Timur Chikichev,
+Aleksei Pronkin}
+% \\
+% \bigskip
+% \bf{1} Affiliation A
+% \\
+% \bf{2} Affiliation B
+% \\
+% \bigskip
+* pronkinalexeyviktorovich@gmail.com
+* \url{https://github.com/alexey-pronkin/annealed}
+
+\end{flushleft}
+
+\section*{Abstract}
+
+We represent the results of paper \cite{main_Huang2018ImprovingEI}.
+The main work of research is a special procedure, applied into the training of hierarchical variational methods. The method called Annealed Variational Objectives (AVO) has to solve the problem of limited posterior distribution density. The method facilitates learning by integrating energy tempering into the optimization objective.
+
+The paper presents contains experiments on the proposed method. These experiments represent the drawbacks of biasing the true posterior to be unimodal, and show how proposed method solve this problem.
+We repeat experiments from \cite{main_Huang2018ImprovingEI} and compare performance of AVO with normalizing flows (NF) and variational auto-encoders (VAE). Additionally we make experiments with deterministic warm up (analogously to AVO), which when applied to NF and VAE may benefits in better space exploration.
+
+\linenumbers
+
+\section*{Introduction}
+
+% related work
+
+% Variational Inference(VI) has played an important role in Bayesian model uncertainty calibration andin unsupervised representation learning. It is different fromMarkov Chain Monte Carlo(MCMC)methods, which rely on the Markov chain to reach an equilibrium; in VI one can easily draw i.i.d.samples from the variational distribution, and enjoy lower variance in inference. On the other handVI is subject to bias on account of the introduction of the approximating variational distribution.As pointed out by Turner and Sahani (2011),  variational approximations tend not to propagateuncertainty well. This inaccuracy and overconfidence in inference can result in bias in statistics ofcertain features of the unobserved variable, such as marginal likelihood of data or the predictiveposterior in the context of a Bayesian model. We argue that this is especially true in the amortized VIsetups (Kingma and Welling, 2014; Rezende et al., 2014), where one seeks to learn the representationsof the data in an efficient manner.  We note that this sacrifices the chance of exploring differentconfigurations of representation in inference, and can bias and hurt the training of the model.This bias is believed to be caused by the variational family that is used, such as factorial Gaussian forcomputational tractability, which limits theexpressivenessof the approximate posterior. In principle,this can be alleviated by having a more rich family of distributions, but in practice, it remains achallenging issue for optimization.  To see this, we write the training objective of VI as the KLdivergence, also known as the variational free energyF, between the proposalqand the target
+
+With variational inference, we have some variational distribution we may use to generate samples. The resulting variance can be lowered by two ways, increasing number of samples and increasing approximation accuracy.
+If variational inference has bad uncertainty approximation (Turner and Sahani (2011)), we will receive bias in statistics in terms of overconfidence and inaccuracy. 
+The statistics we check in models are marginal likelihood of data and the predictive posterior. 
+The same in the amortized VI setups, the representation of data will require better exploration from approximation model during training.
+
+To express the bias induced by a non-rich and non-expressive variational family, the objective can be written as KL-divergence between proposal and target distributions.
+
+Variational inference objective:
+\begin{equation*}
+    F(q) = E_q[\log q(z) - \log f(z)] = D_{KL}(q||f)
+\end{equation*}
+
+% The question here is how to inhibit the variational approximation from escaping poor local minima, even when it has sufficient
+
+Due to KL-divergence, the resulting approximation will have low probability mass in regions with low density. The variational approximation may escape points with sufficient statistics in true target, but with small local density. For multi-modal target distributions, not all target space will be covered and the model will loose some sufficient statistics.
+
+Annealing techniques may increase exploration of the target density.
+
+Alpha-annealing (expressiveness):
+
+\begin{equation*}
+    E_q[\log q(z) - \alpha \log f(z)]
+\end{equation*}
+
+where $\alpha \sim \frac{1}{T}$, and $T$ is temperature which defines the speed of approximate model changes, e.g. learning rate. 
+When $\alpha$ goes from zero to 1, we obtain the usual objective, but with full energy landscape covered. 
+
+The problem, with low penalty on the energy term, the whole procedure is time consuming. This is because multiple inferences are required on each maximization step (deep neural networks, hierarchical models, etc.).
+
+Beta-annealing (optimization): 
+
+Deterministic warm-up (Raiko et al., 2007) is applied to improve training of a generative model. 
+\begin{align*}
+    p(x, z) = p(x|z)p(z)
+\end{align*}
+
+The joint likelihood is equal to the un-normalized true posterior $f(z) = p(z | x)$.
+
+The annealed objective is (negative ELBO):
+\begin{equation*}
+    E_q[\beta (\log q(z) - \log p(z)) - \log p(x|z)]
+\end{equation*}
+
+In annealed objective, the $\beta$ is annealed from 0 to 1. This disables the regularisation of posterior to be like a prior. First  training the negative log-likelihood, we train the decoder independently. With this the model is trained to fit the data, so we have more deterministic auto-encoder. With this approach we additionally lose in latent space exploration.
+
+% \subsection*{Related work}
+
+The model:
+Latent variable model with a joint probability $ p_{\theta}(x, z) = p(x|z)p(z)$.
+
+$x$ and $z$ are observed and latent variables, $\theta$ - model parameters to be learned.
+
+Training procedure, given expected complete data log likelihood over $q$:
+
+\begin{align*}
+    \max_{\theta}E_{q(z)} [\log p_{\theta}(x, z)]
+\end{align*}
+
+\textbf{Conditional $q(z|x)$}
+\begin{enumerate}{}
+    \item tractable: Expectation-Maximization(EM) algorithm.
+    \item non-tractable: approximate the true posterior (MCMC, VI)
+\end{enumerate}
+
+% That is to say, maximizing ECLL increases the marginal likelihood of the data while biasing the true posterior to be more like the auxiliary distribution.  The second effect vanishes when q(z)approximate sp(z|x)better.
+
+
+
+\textbf{Variational distribution subfamilies with expressive parametric form}
+\begin{enumerate}
+    \item Hierarchical Variational Inference(HVI) 
+    \item Auxiliary variable methods
+    \item Normalizing flows
+\end{enumerate}
+
+In HVI, we use a latent variable model $q(z_T) = \int q(z_T, z_{t<T}) d z_{t < T} $, where $t < T$ denoting latent variables.
+
+We use reverse network $r(z_{t < T} )$ to lower bound intractable $q(z_T)$.
+
+\begin{align*}
+    &- E_{q(z_T)}[\log q(z_T)] \ge -E_{q(z_T)}[\ 
+    \log q(z_T) + D_{KL}(q(z_{t<T} | z_T) || r(z_{t<T} | z_T))] = \\
+    &= -E_{q(z_T, z_{t<T})}[\ 
+    \log q(z_T | z_{t<T}) q(z_{t<T}) - \log r(z_{t<T} | z_T) ]
+\end{align*}
+
+The variational lower bound is:
+\begin{align*}
+    L(x) = E_{q(z_T, z_{t<T})}[\ 
+    \log \frac{p(x, z_T) r(z_{t<T} | z_T)} \ 
+    {q(z_T | z_{t<T}) q(z_{t<T})} ]
+\end{align*}
+
+As the $q(z)$ is one from chosen distribution subfamilies, we have the capability to represent any posterior distribution.
+If possible to invert $q(z_T | z_{t<T})$, we choose $r$ to be its invert transformation. This is the so called inverse auto-regressive flow. The KL term is zero, the variance is lower, the entropy is computed via change of the volume formula.
+
+\begin{equation}
+    q(z_T) = q(z_{T-1}) |\frac{\partial z_T}{\partial z_{T-1}}|^{-1}
+\end{equation}
+
+\subsection*{Loss function tempering: annealed importance sampling}
+
+Annealed importance sampling(AIS) is an MCMC method with same concept as alpha annealing, it let the variational distribution be more exploratory early on during training.
+
+We have an extended state space with $z_0, ..,. z_T$ latent variables.
+$z_0$ is sampled from simple distribution (Gaussian normal prior distribution $p(z)$).
+Particles are sequentially sampled from the transition operators $q_t(z_t|z_{t−1})$.
+
+To define transition operators, we design a set of intermediate target densities as 
+$\tilde{f_t} = \tilde{f_T^{\alpha_t}}\tilde{f_T^{1 - \alpha_t}}$.
+This is the set of targets defined as a mixture of initial (normal) and target (complex multi-modal) distributions.
+
+For intermediate targets to be invariant, the transitions are constructed as Markov chain with the following weights:
+\begin{equation*}
+    w_j = \frac{\tilde{f_1}(z_1)\tilde{f_2}(z_2)}{\tilde{f_0}(z_1)\tilde{f_1}(z_2)} ... \frac{\tilde{f_T}(z_T)}{\tilde{f_{T-1}}(z_{T})}
+\end{equation*}
+
+% A downside of AIS is that it requires constructing 
+For the estimate to be accurate we need a long sequence of transitions, computationally difficult.
+
+\subsection*{Annealed Variational Objectives(AVO)}
+
+Similar to AIS and alpha-annealing, authors of \cite{main_Huang2018ImprovingEI} propose to integrate energy tempering into the optimization objective of the variational distribution. 
+
+As in AIS, we consider an extended state space with same transitional targets.
+The marginal $q_T(z_T)$ is an approximate posterior. 
+To define incremental steps, we construct T forward transition operators and T backward operators. 
+We construct intermediate targets
+as an interpolation between the true (unnormalized) posterior and the initial (normal) distribution:
+$\tilde{f_t} = \tilde{f_T^{\alpha_t}}\tilde{f_T^{1 - \alpha_t}}$, where $\alpha \in [0, 1]$. 
+
+
+% More formally, we define:qt(zt,zt−1) =qt−1(zt−1)qt(zt|zt−1),andqt(zt) 
+
+Different from AIS, we learn the parametric transition operators which are assigned to each transition pair. We have a sequence of one layer networks as a result.
+
+Annealed Variational Objectives(AVO):
+\begin{align*}
+    \max_{q_t(z_t| z_{t-1})r_{t}(z_{t-1} | z_t)} E_{q_t(z_t| z_{t-1})q_{t-1}(z_{t-1})}[\ 
+    \log \frac{\tilde{f_t}(z_T) r_{t}(z_{t-1} | z_t)}{q_t(z_t| z_{t-1})q_{t-1}(z_{t-1})} ]
+\end{align*}
+
+% \begin{figure}
+    
+% \end{figure}
+
+\nolinenumbers
+
+% Variational Inference ~ reducing representational bias ~ amortized VI, Variational Auto-encoders (VAE)
+% Expressive families of variational distributions >> losing the computational tractability
+% Reducing the amortization error introduced by the use of a conditional network
+% Non-parametric methods
+% Importance Weighted Auto-encoder (IWAE) >> multiple samples >> computationally difficult
+
+
+% Experiments:
+% \begin{enumerate}
+%     \item Biased noise model.
+%     \item Toy energy fitting.
+%     \item Quantitative analysis on robustness to beta annealing.
+%     \item Amortized inference on MNIST and CelebA datasets.
+% \end{enumerate}
+
+% We also want to demonstrate posterior collapse on toy example and show how method from AVO \cite{main_Huang2018ImprovingEI} can mitigate this problem. Also we want to check if Variational Auto Encoder (VAE) can be improved by the AVO method on the MNIST dataset.
+
+% \subsection*{General plan}
+% \begin{enumerate}
+%     \item Re-implement Variational-Auto Encoder (VAE) \cite{kingma2013autoencoding} with parameters from \cite{TW:2016}. %\url{https://github.com/jmtomczak/vae_householder_flow}
+%     \item Implement Hierarchical Variational Model (HVM) based on \cite{ranganath2015hierarchical}.
+%     \item Implement Importance Weighted Auto-Encoder (IWAE) based on \cite{burda2015importance}.
+%     \item Implement Hierarchical Variational Inference (HVI) method  based on \cite{ranganath2015hierarchical}.
+%     \item Implement Annealed Variational Objectives (AVO) method \cite{main_Huang2018ImprovingEI}.
+%     \item Analyze a behavior AVO method on toy examples.
+%     \item Conduct experiments with VAE and AVO on the MNIST and CelebA datasets.
+% \end{enumerate}
+
+\section{Experiments}
+
+VAE experiment on MNIST dataset
+
+Same decoder and encoder, \\
+2 hidden layers with dimension 300, \\
+40 - latent space size, \\
+LeakyReLU activation function, \\
+Batch normalization. \\
+Optimizer - Adam (lr - 1e-3), batch_size=64, epochs=25 \\
+HVI - 5 stochastic transition operators (hidden size - 40) \\
+Beta annealing \\
+Beta0 = 0.2 \\
+Gamma  = 2e-4 \\
+
+
+
+
+\section{Results}
+
+\section{Conclusion}
+
+% We find that despite the representational capacity of the chosen family of approximate distributions in
+% VI, the density that can be represented is still limited by the optimization process. We resolve this by
+% incorporating annealed objectives into the training of hierarchical variational methods. Experimentally,
+% we demonstrate (1) our method’s robustness to deterministic warm-up, (2) the benefits of encouraging
+% exploration and (3) the downside of biasing the true posterior to be unimodal. Our method is
+% orthogonal to finding a more rich family of variational distributions, and sheds light on an important
+% optimization issue that has thus far been neglected in the amortized VI literature.
+
+\section{Resources}
+
+Github repository:
+\url{https://github.com/alexey-pronkin/annealed}
+
+Presentation:
+
+
+\subsection*{Acknowledgements}
+
+The project represents the paper \cite{main_Huang2018ImprovingEI}.
+We use \cite{lucas2019understanding} as an introduction to the problem and \cite{Knoblauch2019GeneralizedVI} as an introduction to generalized variational inference problem. 
+
+We use and rewrite some code from \url{https://github.com/joelouismarino/iterative_inference/}, \url{https://github.com/jmtomczak/vae_householder_flow}, \url{https://github.com/AntixK/PyTorch-VAE}, , \url{https://github.com/haofuml/cyclical_annealing} and \url{https://github.com/ajayjain/lmconv}. 
+
+We assume, that first two repositories were used in the original paper \cite{main_Huang2018ImprovingEI} closed source code. 
+
+We want to try to apply annealing strategies for some of SoTA AE for MNIST \url{https://paperswithcode.com/sota/image-generation-on-mnist} if we will have time.
+
+\bibliographystyle{unsrt}
+\bibliography{main}
+
+\end{document}

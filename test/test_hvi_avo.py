@@ -3,11 +3,12 @@ from avo.models import HVIAVO
 import torch
 from avo.toy_dist import PickleRick
 import pytorch_lightning as pl
+from test_config import device
 
 
 class TestHVIAVO(unittest.TestCase):
     def setUp(self) -> None:
-        self._device = "cpu"
+        self._device = device
         l_target = torch.cholesky(torch.tensor([[1., 0.95], [0.95, 1.]]))
         target = PickleRick(torch.tensor([0., 0.]).unsqueeze(0).to(self._device), l_target.to(self._device))
 

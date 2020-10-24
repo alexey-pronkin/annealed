@@ -41,4 +41,3 @@ class HVIAVO(HVI):
             loss += annealed_loss + log_probability + previous_log_probability
             previous_log_probability += log_probability
         return x, loss / self._depth
-

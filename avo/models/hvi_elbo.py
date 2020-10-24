@@ -6,9 +6,12 @@ from .hvi_transition import HVITransition
 
 
 class HVIELBO(HVI):
-    def __init__(self, input_dimension, depth, target, lr=1e-3, batch_size=64, hidden_dimension=2, beta1=0.999,
-                 beta2=0.999, optimizer="adam", k=100, transitions=None, is_flow=False):
-        super().__init__(input_dimension, target, lr, batch_size, beta1, beta2, optimizer, k, is_flow)
+    def __init__(self, input_dimension, depth, target, lr=1e-3, batch_size=64,
+         hidden_dimension=2, beta1=0.999, beta2=0.999, optimizer="adam", k=100, 
+          transitions=None, is_flow=False):
+        super().__init__(
+            input_dimension=input_dimension, target=target, lr=lr, batch_size=batch_size, beta1=beta1, beta2=beta2,
+             optimizer=optimizer, k=k, is_flow=is_flow,)
         """
         in_dim - inout dimension
         h_dim - hidden dimension of the auto regressive NN

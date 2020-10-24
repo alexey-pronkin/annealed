@@ -18,7 +18,6 @@ class HVITransition(nn.Module):
             activation,
             context_dimension=context_dimension
         )
-
     def log_forward_transition(self, previous_z, z=None, x=None):
         mu, sigma = self._forward_module(previous_z, x)
         if z is None:
