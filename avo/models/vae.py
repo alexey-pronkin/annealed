@@ -55,10 +55,9 @@ class VAE(pl.LightningModule):
 
     def validation_step(self, batch, batch_index):
         x, loss, nll_part, kl_part = self.forward(batch[0])
-        self.log("val_loss", loss)
         self.log("val_kl", kl_part)
         self.log("val_nll", nll_part)
-        self.log("val_elbo", kl_part + nll_part)
+        self.log("val_loss", kl_part + nll_part)
         return kl_part + nll_part
 
     def test_step(self, batch, batch_index):

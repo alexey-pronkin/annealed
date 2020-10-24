@@ -13,8 +13,24 @@ see: [Proposal](Baesian_methods_project_proposal_HVI_AVO.pdf) in this repo.
 
 ## Reproducing
 
-TODO
+### Training VAE
+For reproducing experiments with VAE use following commands
 
+`
+python3 run_vae.py -epoch 100 train vae_hvi
+`
+
+Epoch is a number of epoch for training. vae_hvi is a possible model. Other possible models are vae, vae_hvi, 
+vae_hvi_avo. Logs is saved to lightning_logs. Checkpoint is saved to lightning_logs/versrion_{version_number}/checkpoints.
+
+### Evaluation VAE
+For testing VAE use following command
+
+`
+python run_vae.py -model-checkpoint pretrained_models/vae_hvi_avo.ckpt test vae_hvi_avo
+`
+
+This command also generate generation.png and reconstruction.png
 ## Goal
 
 During this project we are going to implement methods and repeat experiments of this paper. https://arxiv.org/abs/1809.01818
