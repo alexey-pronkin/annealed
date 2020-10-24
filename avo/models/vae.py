@@ -10,12 +10,14 @@ from .vae_encoder import VaeEncoder
 # noinspection PyArgumentList
 class VAE(pl.LightningModule):
     def __init__(self, input_dimension=28, latent_dimension=40, hidden_dimensions=(300, 300), lr=1e-3,
-                 beta=0, gamma=1, batch_norm=False):
+                 beta=0, gamma=1, optim_config=None, encoder_config=None):
         super(VAE, self).__init__()
+        if encoder_config is None:
+            encoder_config = {}
         self.encoder = VaeEncoder(input_dimension=input_dimension, hidden_dimensions=hidden_dimensions,
-                                  batch_norm=batch_norm)
+                                  **encoder_config)
         self.decoder = VaeDecoder(hidden_dimensions=hidden_dimensions, latent_dimension=latent_dimension,
-                                  output_dimension=input_dimension, batch_norm=batch_norm)
+                                  output_dimension=input_dimension, **encoder_config)
         self._latent_dimension = latent_dimension
         self._lr = lr
         self._loss = nn.BCEWithLogitsLoss(reduction="sum")
@@ -23,6 +25,9 @@ class VAE(pl.LightningModule):
         self.init_params()
         self._current_beta = beta
         self._gamma = gamma
+        if optim_config is None:
+            optim_config = {}
+        self._optim_config = optim_config
 
     def init_params(self):
         for m in self.modules():
@@ -79,7 +84,7 @@ class VAE(pl.LightningModule):
         return torch.sigmoid(x)
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=self._lr)
+        optimizer = torch.optim.Adam(self.parameters(), lr=self._lr, **self._optim_config)
         return optimizer
 
     def nll_part_loss(self, x, target):
