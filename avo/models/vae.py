@@ -41,8 +41,8 @@ class VAE(pl.LightningModule):
         self._current_beta += self._gamma
         self._current_beta = np.clip(self._current_beta, 0, 1)
 
-    def on_train_end(self) -> None:
-        super().on_train_end()
+    def on_train_epoch_end(self, outputs) -> None:
+        super().on_train_epoch_end()
         self.update_beta()
 
     def training_step(self, batch, batch_index):
