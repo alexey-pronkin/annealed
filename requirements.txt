@@ -8,10 +8,10 @@ torch>=1.5.0
 wget
 ipython
 pandas
-albumentations==0.4.5
-tensorboard>=1.14.0
+albumentations
+tensorboard
 setuptools
 wheel
-grpcio==1.26.0
+grpcio
 pytorch-lightning
 pyro-ppl
